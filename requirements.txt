@@ -1,0 +1,7 @@
+numpy
+pandas
+scipy
+ipywidgets>=8.0.0
+plotly>=5.0.0
+py3Dmol
+voila
