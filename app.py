@@ -11,17 +11,35 @@ print("==================================================")
 print(" Starting Comp-Chem-Lab Studio (Voilà on port 7860)")
 print("==================================================")
 
-cmd = [
-    sys.executable,
-    "-m",
-    "voila",
-    "rwgs_web.ipynb",
-    "--port=7860",
-    "--no-browser",
-    "--theme=light",
-    "--enable_nbextensions=True",
-]
-
 rwgs_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "rwgs")
-subprocess.run(cmd, cwd=rwgs_dir)
+os.chdir(rwgs_dir)
 
+try:
+    from voila.app import Voila
+    v = Voila()
+    v.initialize([
+        "rwgs_web.ipynb",
+        "--Voila.ip=0.0.0.0",
+        "--port=7860",
+        "--no-browser",
+        "--theme=light",
+    ])
+    v.tornado_settings = {
+        "headers": {
+            "Content-Security-Policy": "frame-ancestors * 'self' https://huggingface.co https://*.hf.space;",
+        }
+    }
+    v.start()
+except Exception as e:
+    print(f"Direct launch note ({e}), falling back to CLI subprocess...")
+    cmd = [
+        sys.executable,
+        "-m",
+        "voila",
+        "rwgs_web.ipynb",
+        "--Voila.ip=0.0.0.0",
+        "--port=7860",
+        "--no-browser",
+        "--theme=light",
+    ]
+    subprocess.run(cmd)
