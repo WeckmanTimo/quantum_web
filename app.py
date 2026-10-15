@@ -25,9 +25,11 @@ try:
         "--theme=light",
     ])
     v.tornado_settings = {
+        "disable_check_xsrf": True,
+        "xsrf_cookies": False,
         "headers": {
             "Content-Security-Policy": "frame-ancestors * 'self' https://huggingface.co https://*.hf.space;",
-        }
+        },
     }
     v.start()
 except Exception as e:
