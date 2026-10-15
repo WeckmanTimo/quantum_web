@@ -1,0 +1,366 @@
+{
+  "H2O": {
+    "name": "Vesi (H₂O)",
+    "formula": "H₂O",
+    "desc": "Taipunut polaarinen molekyyli & elämän liuotin",
+    "atoms": [
+      {
+        "symbol": "O",
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.11699999999624132,
+        "color": "#EF4444",
+        "size": 16
+      },
+      {
+        "symbol": "H",
+        "x": 0.0,
+        "y": 0.756999999975681,
+        "z": -0.4689999999849331,
+        "color": "#F8FAFC",
+        "size": 10
+      },
+      {
+        "symbol": "H",
+        "x": 0.0,
+        "y": -0.756999999975681,
+        "z": -0.4689999999849331,
+        "color": "#F8FAFC",
+        "size": 10
+      }
+    ],
+    "bonds": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "homo_idx": 4,
+    "orbitals": [
+      {
+        "key": "HOMO-1",
+        "mo_idx": 3,
+        "label": "HOMO-1 (2a₁)",
+        "energy_ev": -15.461195973839578,
+        "is_occupied": true,
+        "type": "O-H sitova / hapen sp²-hybridin kaltainen",
+        "desc": "Elektronitiheys keskittyy O-H -sidoksiin ja hapen taakse muodostaen vahvan kovalenttisen rungon.",
+        "role": "Sitova perusrunko"
+      },
+      {
+        "key": "HOMO",
+        "mo_idx": 4,
+        "label": "HOMO (1b₁)",
+        "energy_ev": -13.55370949479745,
+        "is_occupied": true,
+        "type": "Hapen vapaa elektronipari (puhdas p_x)",
+        "desc": "Kohtisuorassa molekyylitasoon (xy). Määrittää veden emäksisyyden, nukleofiilisyyden ja vetysidokset!",
+        "role": "Elektroniparin luovuttaja (nukleofiili)"
+      },
+      {
+        "key": "LUMO",
+        "mo_idx": 5,
+        "label": "LUMO (4a₁)",
+        "energy_ev": 4.79531454068412,
+        "is_occupied": false,
+        "type": "O-H hajoittava orbitaali (σ*)",
+        "desc": "Ensimmäinen tyhjä orbitaali. Sisältää solmutason happi- ja vetyatomien välissä.",
+        "role": "Elektronin vastaanottaja (hajoittava)"
+      },
+      {
+        "key": "LUMO+1",
+        "mo_idx": 6,
+        "label": "LUMO+1 (2b₂)",
+        "energy_ev": 6.9483208887453,
+        "is_occupied": false,
+        "type": "O-H hajoittava orbitaali (σ*)",
+        "desc": "Korkeampi viritystila solmutasolla O-atomien symmetriatasossa.",
+        "role": "Korkea viritystila"
+      }
+    ],
+    "gap_ev": 18.34902403548157
+  },
+  "CO2": {
+    "name": "Hiilidioksidi (CO₂)",
+    "formula": "CO₂",
+    "desc": "Lineaarinen kasvihuonekaasu & RWGS-lähtöaine",
+    "atoms": [
+      {
+        "symbol": "C",
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "color": "#334155",
+        "size": 15
+      },
+      {
+        "symbol": "O",
+        "x": 0.0,
+        "y": 0.0,
+        "z": 1.16199999996267,
+        "color": "#EF4444",
+        "size": 16
+      },
+      {
+        "symbol": "O",
+        "x": 0.0,
+        "y": 0.0,
+        "z": -1.16199999996267,
+        "color": "#EF4444",
+        "size": 16
+      }
+    ],
+    "bonds": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "homo_idx": 10,
+    "orbitals": [
+      {
+        "key": "HOMO-1",
+        "mo_idx": 9,
+        "label": "HOMO-1 (1πᵤ)",
+        "energy_ev": -14.772102273976094,
+        "is_occupied": true,
+        "type": "Sitova π-orbitaali (C=O)",
+        "desc": "Elektronitiheys jakautuu symmetrisesti hiilen ja molempien happien välille vahvistaen kaksoissidosta.",
+        "role": "Sitova π-sidos"
+      },
+      {
+        "key": "HOMO",
+        "mo_idx": 10,
+        "label": "HOMO (1π_g)",
+        "energy_ev": -14.772102273975953,
+        "is_occupied": true,
+        "type": "Hapen vapaat elektroniparit (ei-sitova)",
+        "desc": "Elektronitiheys sijaitsee vain happiatomeissa. Hiiliatomin kohdalla on tarkka solmutaso.",
+        "role": "Ei-sitova elektronipari"
+      },
+      {
+        "key": "LUMO",
+        "mo_idx": 11,
+        "label": "LUMO (2πᵤ*)",
+        "energy_ev": 5.665711306403127,
+        "is_occupied": false,
+        "type": "Hajoittava π*-orbitaali (tyhjä)",
+        "desc": "Keskeinen RWGS-katalyysille: elektroni siirtyy tälle orbitaalille, mikä heikentää C=O -sidosta ja mahdollistaa pelkistymisen häkäksi (CO)!",
+        "role": "Aktiivinen reaktiokeskus pelkistyksessä"
+      },
+      {
+        "key": "LUMO+1",
+        "mo_idx": 12,
+        "label": "LUMO+1 (2πᵤ*)",
+        "energy_ev": 5.665711306403201,
+        "is_occupied": false,
+        "type": "Hajoittava π*-orbitaali (degeneroitunut)",
+        "desc": "LUMO:n kohtisuora degeneroitunut vastinpari samalla energialla.",
+        "role": "Degeneroitunut LUMO-pari"
+      }
+    ],
+    "gap_ev": 20.43781358037908
+  },
+  "CO": {
+    "name": "Häkä / Hiilimonoksidi (CO)",
+    "formula": "CO",
+    "desc": "RWGS-reaktiotuote & teollinen synteesikaasu",
+    "atoms": [
+      {
+        "symbol": "C",
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.6489999999791506,
+        "color": "#334155",
+        "size": 15
+      },
+      {
+        "symbol": "O",
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.4869999999843549,
+        "color": "#EF4444",
+        "size": 16
+      }
+    ],
+    "bonds": [
+      [
+        0,
+        1
+      ]
+    ],
+    "homo_idx": 6,
+    "orbitals": [
+      {
+        "key": "HOMO-1",
+        "mo_idx": 5,
+        "label": "HOMO-1 (1π)",
+        "energy_ev": -17.40367750784349,
+        "is_occupied": true,
+        "type": "Sitova π-orbitaali (C≡O)",
+        "desc": "Vahva sitova π-vuorovaikutus hiilen ja hapen välillä kolmoissidoksessa.",
+        "role": "Sitova π-sidos"
+      },
+      {
+        "key": "HOMO",
+        "mo_idx": 6,
+        "label": "HOMO (5σ)",
+        "energy_ev": -15.019642903981914,
+        "is_occupied": true,
+        "type": "Hiilen vapaa elektronipari (sp-hybridi)",
+        "desc": "Suuri elektronilohko ulkonee hiiliatomin päästä! Selittää, miksi CO sitoutuu katalyytteihin ja hemoglobiiniin nimenomaan hiilen kautta.",
+        "role": "Vahva σ-luovuttaja (hiilipää)"
+      },
+      {
+        "key": "LUMO",
+        "mo_idx": 7,
+        "label": "LUMO (2π*)",
+        "energy_ev": 3.924220291392867,
+        "is_occupied": false,
+        "type": "Hajoittava π*-orbitaali (tyhjä)",
+        "desc": "Vastaanottaa metallin d-elektroneja katalyyttipinnoilla (π-backbonding), mikä tekee CO:sta erinomaisen ligandin.",
+        "role": "π-vastaanottaja (backbonding)"
+      },
+      {
+        "key": "LUMO+1",
+        "mo_idx": 8,
+        "label": "LUMO+1 (2π*)",
+        "energy_ev": 3.9242202913930573,
+        "is_occupied": false,
+        "type": "Hajoittava π*-orbitaali (degeneroitunut)",
+        "desc": "LUMO:n kohtisuora degeneroitunut vastinpari.",
+        "role": "Degeneroitunut LUMO-pari"
+      }
+    ],
+    "gap_ev": 18.94386319537478
+  },
+  "C2H4": {
+    "name": "Eteeni (C₂H₄)",
+    "formula": "C₂H₄",
+    "desc": "Orgaanisen kemian mallimolekyyli & kaksoissidos",
+    "atoms": [
+      {
+        "symbol": "C",
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.6689999999785081,
+        "color": "#334155",
+        "size": 15
+      },
+      {
+        "symbol": "C",
+        "x": 0.0,
+        "y": 0.0,
+        "z": -0.6689999999785081,
+        "color": "#334155",
+        "size": 15
+      },
+      {
+        "symbol": "H",
+        "x": 0.0,
+        "y": 0.9229999999703483,
+        "z": 1.2319999999604212,
+        "color": "#F8FAFC",
+        "size": 10
+      },
+      {
+        "symbol": "H",
+        "x": 0.0,
+        "y": -0.9229999999703483,
+        "z": 1.2319999999604212,
+        "color": "#F8FAFC",
+        "size": 10
+      },
+      {
+        "symbol": "H",
+        "x": 0.0,
+        "y": 0.9229999999703483,
+        "z": -1.2319999999604212,
+        "color": "#F8FAFC",
+        "size": 10
+      },
+      {
+        "symbol": "H",
+        "x": 0.0,
+        "y": -0.9229999999703483,
+        "z": -1.2319999999604212,
+        "color": "#F8FAFC",
+        "size": 10
+      }
+    ],
+    "bonds": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        1,
+        5
+      ]
+    ],
+    "homo_idx": 7,
+    "orbitals": [
+      {
+        "key": "HOMO-1",
+        "mo_idx": 6,
+        "label": "HOMO-1 (1b₂ᵤ)",
+        "energy_ev": -13.821068818877487,
+        "is_occupied": true,
+        "type": "Sitova σ-kehys (C-C ja C-H)",
+        "desc": "Tasossa oleva vahva kovalenttinen σ-runko, joka pitää molekyylin litteänä.",
+        "role": "Tasomainen σ-runko"
+      },
+      {
+        "key": "HOMO",
+        "mo_idx": 7,
+        "label": "HOMO (1b₃ᵤ)",
+        "energy_ev": -10.220043462827542,
+        "is_occupied": true,
+        "type": "C=C kaksoissidoksen π-orbitaali",
+        "desc": "Klassinen π-sidos! Elektronipilvet molekyylitason ylä- ja alapuolella. Reagoi elektrofiilien (esim. Br₂) kanssa additioreaktioissa.",
+        "role": "Reaktiivinen π-elektronipari"
+      },
+      {
+        "key": "LUMO",
+        "mo_idx": 8,
+        "label": "LUMO (1b₂g*)",
+        "energy_ev": 4.4595247567559975,
+        "is_occupied": false,
+        "type": "C=C hajoittava π*-orbitaali",
+        "desc": "Solmutaso kahden hiiliatomin välissä. Valoabsorptio virittää elektronin HOMO -> LUMO, mikä mahdollistaa kaksoissidoksen kiertymisen.",
+        "role": "Hajoittava π*-viritystila"
+      },
+      {
+        "key": "LUMO+1",
+        "mo_idx": 9,
+        "label": "LUMO+1 (4a_g*)",
+        "energy_ev": 5.601309387473924,
+        "is_occupied": false,
+        "type": "Hajoittava σ*-orbitaali",
+        "desc": "Korkea tyhjä viritystila kovalenttisen rungon ulkopuolella.",
+        "role": "Korkea viritystila"
+      }
+    ],
+    "gap_ev": 14.67956821958354
+  }
+}
