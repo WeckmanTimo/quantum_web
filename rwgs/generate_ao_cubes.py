@@ -106,11 +106,15 @@ def generate_c2h4_ao_cubes():
     x_coords = coords_bohr[:, 0]
     gap = np.tanh(np.abs(x_coords) / 0.45) ** 2
     
-    # 1. HOMO Lähtö-AO:t (samassa vaiheessa: phi_c0 + phi_c1)
-    val_homo_ao = (phi_c0 + phi_c1) * gap
+    phi_c0_g = phi_c0 * gap
+    phi_c1_g = phi_c1 * gap
     
-    # 2. LUMO Lähtö-AO:t (vastakkaisissa vaiheissa: -phi_c0 + phi_c1)
-    val_lumo_ao = (-phi_c0 + phi_c1) * gap
+    # Kahden hiilen erilliset atomiorbitaalit ennen LCAO-interferenssiä:
+    # Käytetään palattain identtistä kenttää x >= 0 (C0) ja x < 0 (C1),
+    # jolloin kumpikin p-orbitaali on täsmälleen samanmuotoinen HOMO- ja LUMO-tiloissa,
+    # ja ainoastaan C1:n vaihe (merkki) kääntyy LUMOssa!
+    val_homo_ao = np.where(x_coords >= 0, phi_c0_g, phi_c1_g)
+    val_lumo_ao = np.where(x_coords >= 0, phi_c0_g, -phi_c1_g)
     
     # Luodaan Cube ja tallennetaan
     nx, ny, nz = cube_info["nx"], cube_info["ny"], cube_info["nz"]

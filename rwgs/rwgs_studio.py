@@ -877,11 +877,11 @@ def make_h2o_card() -> widgets.VBox:
 # 6. Kokoa sivunäkymä (lukio-opetukseen optimoitu, ei teknisiä jargoneita)
 # ==============================================================================
 card_h2 = make_1d_card(
-    "H2", "H₂: Diatominen sidosdissosiaatio", "Lähtöaine", "r(H-H)",
+    "H2", "H₂: Sidoksen venytys", "Lähtöaine", "r(H-H)",
     xyz_h2, (0.40, 4.00), 4.00, (-500, 50)
 )
 card_co2 = make_1d_card(
-    "CO2", "CO₂: Lineaarinen symmetrinen venytys", "Lähtöaine", "r(C=O)",
+    "CO2", "CO₂: Symmetrinen C-O venytys", "Lähtöaine", "r(C=O)",
     xyz_co2, (0.85, 4.00), 4.00, (-1700, 50)
 )
 card_co = make_1d_card(
@@ -941,8 +941,7 @@ header_banner = widgets.HTML("""
       </p>
     </div>
     <div style="text-align:right; font-size:11.5px; opacity:0.8; line-height:1.4;">
-      Yhden näkymän studio &bull; Hessin laki<br>
-      Suora lukuarvojen syöttö &bull; Molekyylien sidosenergiat
+      Hessin laki &bull; Molekyylien sidosenergiat
     </div>
   </div>
 </div>
