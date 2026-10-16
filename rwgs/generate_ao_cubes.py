@@ -78,49 +78,39 @@ def generate_c2h4_ao_cubes():
     ref_cube_path = os.path.join(CUBES_DIR, "C2H4_HOMO.cube")
     cube_info = read_cube_header_and_coords(ref_cube_path)
     coords_bohr = cube_info["grid_coords"]
-    coords_ang = coords_bohr * BOHR
     
-    # Hiilet ovat: C0 at y = +1.264 Bohr, C1 at y = -1.264 Bohr
-    y_c0 = 1.264227 * BOHR
-    y_c1 = -1.264227 * BOHR
+    # C2H4_HOMO.cube koordinaateissa:
+    # C-C -sidos on x-akselilla: C0 at (+1.264227, 0, 0), C1 at (-1.264227, 0, 0) Bohr
+    # Molekyylitaso on xy (H-atomit xy-tasossa)
+    # Pi-sidos (HOMO ja LUMO) on kohtisuorassa molekyylitasoon nähden eli z-akselilla (2pz)!
+    atom_str = "; ".join([f"{'C' if a[0] == 6 else 'H'} {a[1]} {a[2]} {a[3]}" for a in cube_info["atoms"]])
+    mol_full = gto.M(atom=atom_str, unit="Bohr", basis="def2-svp")
     
-    # Yksittäiset hiiliatomit C0 ja C1
-    mol_c0 = gto.M(atom=f"C 0.0 {y_c0} 0.0", basis="def2-svp")
-    mol_c1 = gto.M(atom=f"C 0.0 {y_c1} 0.0", basis="def2-svp")
-    
-    # Eteenin täysi molekyyli koordinaattien tulostukseen
-    c_geom = f"""
-    C 0.0 {1.264227*BOHR} 0.0
-    C 0.0 {-1.264227*BOHR} 0.0
-    H 0.0 {2.328143*BOHR} {1.744217*BOHR}
-    H 0.0 {2.328143*BOHR} {-1.744217*BOHR}
-    H 0.0 {-2.328143*BOHR} {1.744217*BOHR}
-    H 0.0 {-2.328143*BOHR} {-1.744217*BOHR}
-    """
-    mol_full = gto.M(atom=c_geom, basis="def2-svp")
+    # Yksittäiset hiiliatomit C0 ja C1 täsmälleen molekyylin hiilten paikoilla
+    mol_c0 = gto.M(atom="C 1.264227 0.0 0.0", unit="Bohr", basis="def2-svp")
+    mol_c1 = gto.M(atom="C -1.264227 0.0 0.0", unit="Bohr", basis="def2-svp")
     
     ao_c0 = mol_c0.eval_gto("GTOval", coords_bohr)
     ao_c1 = mol_c1.eval_gto("GTOval", coords_bohr)
     labels_c0 = mol_c0.ao_labels()
     
-    # Etsitään 2px-orbitaalit (indeksit def2-svp kannassa)
-    idx_2px = [i for i, lbl in enumerate(labels_c0) if "2px" in lbl or "3px" in lbl]
-    print(f"  Hiilen 2px/3px indeksit: {idx_2px} ({[labels_c0[i] for i in idx_2px]})")
+    # Etsitään 2pz- ja 3pz-orbitaalit (pi-sidos muodostuu 2pz-orbitaaleista)
+    idx_2pz = [i for i, lbl in enumerate(labels_c0) if "2pz" in lbl or "3pz" in lbl]
+    print(f"  Hiilen 2pz/3pz indeksit: {idx_2pz} ({[labels_c0[i] for i in idx_2pz]})")
     
-    # C0:n ja C1:n 2px-aallot (käytetään 2px + 0.77*3px kuten molekyylin RHF-kertoimissa)
-    phi_c0 = ao_c0[:, idx_2px[0]] + 0.77 * ao_c0[:, idx_2px[1]]
-    phi_c1 = ao_c1[:, idx_2px[0]] + 0.77 * ao_c1[:, idx_2px[1]]
+    # C0:n ja C1:n 2pz-aallot (käytetään samoja kertoimia kuin RHF HOMO:ssa)
+    phi_c0 = 0.3835 * ao_c0[:, idx_2pz[0]] + 0.2977 * ao_c0[:, idx_2pz[1]]
+    phi_c1 = 0.3835 * ao_c1[:, idx_2pz[0]] + 0.2977 * ao_c1[:, idx_2pz[1]]
     
-    # Skaalataan amplitudi vastaamaan molekyylin orbitaalin tiheyttä
-    phi_c0 = phi_c0 * 0.45
-    phi_c1 = phi_c1 * 0.45
+    # Sileä rako x-akselilla hiilten välissä, jotta kaksi erillistä 2pz-kahdeksikkoa näkyy selvästi
+    x_coords = coords_bohr[:, 0]
+    gap = np.tanh(np.abs(x_coords) / 0.45) ** 2
     
-    # 1. HOMO Lähtö-AO:t (samassa vaiheessa, rakentava yhdistelmä: phi_c0 + phi_c1)
-    # Mutta estetään ytimien välisen sidoksen muodostuminen maskaamalla tai käyttämällä puhtaita erillisiä AOi-lohkoja
-    val_homo_ao = phi_c0 + phi_c1
+    # 1. HOMO Lähtö-AO:t (samassa vaiheessa: phi_c0 + phi_c1)
+    val_homo_ao = (phi_c0 + phi_c1) * gap
     
-    # 2. LUMO Lähtö-AO:t (vastakkaisissa vaiheissa: phi_c0 - phi_c1)
-    val_lumo_ao = phi_c0 - phi_c1
+    # 2. LUMO Lähtö-AO:t (vastakkaisissa vaiheissa: -phi_c0 + phi_c1)
+    val_lumo_ao = (-phi_c0 + phi_c1) * gap
     
     # Luodaan Cube ja tallennetaan
     nx, ny, nz = cube_info["nx"], cube_info["ny"], cube_info["nz"]
@@ -129,11 +119,11 @@ def generate_c2h4_ao_cubes():
     cc.box = np.array([cube_info["vx"] * nx, cube_info["vy"] * ny, cube_info["vz"] * nz])
     
     p_homo_ao = os.path.join(CUBES_DIR, "C2H4_HOMO_AO.cube")
-    cc.write(val_homo_ao.reshape(nx, ny, nz), p_homo_ao, comment="C2H4 HOMO constituent AOs (2px + 2px)")
+    cc.write(val_homo_ao.reshape(nx, ny, nz), p_homo_ao, comment="C2H4 HOMO constituent AOs (2pz + 2pz)")
     print(f"  -> Tallennettu: {p_homo_ao}")
     
     p_lumo_ao = os.path.join(CUBES_DIR, "C2H4_LUMO_AO.cube")
-    cc.write(val_lumo_ao.reshape(nx, ny, nz), p_lumo_ao, comment="C2H4 LUMO constituent AOs (2px - 2px)")
+    cc.write(val_lumo_ao.reshape(nx, ny, nz), p_lumo_ao, comment="C2H4 LUMO constituent AOs (-2pz + 2pz)")
     print(f"  -> Tallennettu: {p_lumo_ao}")
 
 

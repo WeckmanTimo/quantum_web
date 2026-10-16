@@ -119,12 +119,12 @@ def render_molecule_3d_iframe(
           stick: {{ radius: 0.14, color: "#64748b" }}
         }});
         viewer.addStyle({{ elem: "H" }}, {{ sphere: {{ radius: 0.42, color: "#FFFFFF" }} }});
-        const cRadius = ("{mol_key}" === "Atom") ? 0.30 : 0.62;
+        const cRadius = ("{mol_key}" === "Atom") ? 0.22 : 0.62;
         viewer.addStyle({{ elem: "C" }}, {{ sphere: {{ radius: cRadius, color: "#334155" }} }});
         viewer.addStyle({{ elem: "O" }}, {{ sphere: {{ radius: 0.58, color: "#DC2626" }} }});
 
-        // Lisätään orbitaalipinnat (isopinta 0.03)
-        addOrbitalSurfaces(baseCube);
+        // Lisätään orbitaalipinnat (1s-orbitaalilla pienempi isopinta 0.008 jotta pinta on suurempi)
+        addOrbitalSurfaces(baseCube, currentOrb);
 
         // Asetetaan molekyyli poikittain kameraan nähden ja sovitetaan näkymään
         viewer.zoomTo();
@@ -150,21 +150,25 @@ def render_molecule_3d_iframe(
       }} catch (e) {{}}
     }}
 
-    function addOrbitalSurfaces(cubeData) {{
+    function addOrbitalSurfaces(cubeData, orbName) {{
       clearOrbitalSurfaces();
       const voldata = new $3Dmol.VolumeData(cubeData, "cube");
-      // Positiivinen vaihe (+0.03)
+      let isoval = {FIXED_ISOVAL};
+      if (orbName === "1s") {{
+        isoval = 0.008; // Pienempi isopinta 1s:lle, jotta näkyvä pallopinta on selkeästi suurempi!
+      }}
+      // Positiivinen vaihe (+isoval)
       const sPos = viewer.addIsosurface(voldata, {{
-        isoval: {FIXED_ISOVAL},
+        isoval: isoval,
         color: "#0ea5e9",
         opacity: {FIXED_OPACITY},
         smoothness: 3
       }});
       if (sPos) orbitalShapes.push(sPos);
 
-      // Negatiivinen vaihe (-0.03)
+      // Negatiivinen vaihe (-isoval)
       const sNeg = viewer.addIsosurface(voldata, {{
-        isoval: -{FIXED_ISOVAL},
+        isoval: -isoval,
         color: "#f43f5e",
         opacity: {FIXED_OPACITY},
         smoothness: 3
@@ -180,7 +184,7 @@ def render_molecule_3d_iframe(
       if (!cubeData || !viewer) return;
 
       // Lisätään uuden orbitaalin pinnat (addOrbitalSurfaces poistaa vanhat pinnat)
-      addOrbitalSurfaces(cubeData);
+      addOrbitalSurfaces(cubeData, newOrb);
 
       // Renderöidään ilman kameran nollausta (zoomTo ei kutsuta!)
       viewer.render();
@@ -573,13 +577,13 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str, lcao_mode: str = 
         svg_lines.append(draw_pair(87.5, 300))
         svg_lines.append(text(40, 305, "σ(sp²)", anchor="end", size=12))
 
-        # Jos LCAO AO -tila on valittu, korostetaan molemmat 2p_x lähtö-AO:t
+        # Jos LCAO AO -tila on valittu, korostetaan molemmat 2p_z lähtö-AO:t
         is_ao_mode = (lcao_mode == "AO")
-        px1_col = lvl_hi_occ if is_ao_mode else lvl_norm
-        px1_w = 4.5 if is_ao_mode else 2.5
-        svg_lines.append(line(60, 160, 115, 160, color=px1_col, width=px1_w))
+        pz1_col = lvl_hi_occ if is_ao_mode else lvl_norm
+        pz1_w = 4.5 if is_ao_mode else 2.5
+        svg_lines.append(line(60, 160, 115, 160, color=pz1_col, width=pz1_w))
         svg_lines.append(draw_single(87.5, 160))
-        svg_lines.append(text(40, 165, "2p_x (π)", anchor="end", size=12, weight="bold" if is_ao_mode else "normal", color=px1_col))
+        svg_lines.append(text(40, 165, "2p_z (π)", anchor="end", size=12, weight="bold" if is_ao_mode else "normal", color=pz1_col))
         if is_ao_mode:
             svg_lines.append(text(87.5, 142, "AO (1) ◄", anchor="middle", size=11, weight="bold", color=lvl_hi_occ))
 
@@ -588,11 +592,11 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str, lcao_mode: str = 
         svg_lines.append(draw_pair(452.5, 300))
         svg_lines.append(text(500, 305, "σ(sp²)", anchor="start", size=12))
 
-        px2_col = lvl_hi_occ if is_ao_mode else lvl_norm
-        px2_w = 4.5 if is_ao_mode else 2.5
-        svg_lines.append(line(425, 160, 480, 160, color=px2_col, width=px2_w))
+        pz2_col = lvl_hi_occ if is_ao_mode else lvl_norm
+        pz2_w = 4.5 if is_ao_mode else 2.5
+        svg_lines.append(line(425, 160, 480, 160, color=pz2_col, width=pz2_w))
         svg_lines.append(draw_single(452.5, 160))
-        svg_lines.append(text(500, 165, "2p_x (π)", anchor="start", size=12, weight="bold" if is_ao_mode else "normal", color=px2_col))
+        svg_lines.append(text(500, 165, "2p_z (π)", anchor="start", size=12, weight="bold" if is_ao_mode else "normal", color=pz2_col))
         if is_ao_mode:
             svg_lines.append(text(452.5, 142, "► AO (2)", anchor="middle", size=11, weight="bold", color=lvl_hi_occ))
 
@@ -632,7 +636,7 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str, lcao_mode: str = 
             svg_lines.append(text(315, 40, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
 
         if is_ao_mode:
-            svg_lines.append(text(270, 125, "◄ 3D-malli: Lähtö-AO:t (2 × C 2p_x)", anchor="middle", size=12, weight="bold", color=lvl_hi_occ))
+            svg_lines.append(text(270, 125, "◄ 3D-malli: Lähtö-AO:t (2 × C 2p_z)", anchor="middle", size=12, weight="bold", color=lvl_hi_occ))
 
     # --------------------------------------------------------------------------
     # 2.5. Atomi (Hiili, C) – Aufbau, Hundin sääntö ja kvanttiluvut
@@ -806,7 +810,7 @@ def render_fmo_explanation_html(
         <b>💡 Miten atomiorbitaaleista syntyy molekyyliorbitaaleja (LCAO)?</b><br>
         Molekyyliorbitaaliteoria perustuu atomiorbitaalien lineaariseen yhdistämiseen (<i>Linear Combination of Atomic Orbitals, LCAO</i>): <b>ψ_MO = c₁ φ_AO,1 ± c₂ φ_AO,2</b>. 
         Kun samanvaiheiset lohkot (+ ja +) kohtaavat, aallot vahvistavat toisiaan muodostaen <b>sitovan molekyyliorbitaalin</b>. Kun erivaiheiset lohkot (+ ja -) kohtaavat, aallot kumoavat toisensa muodostaen <b>hajottavan orbitaalin</b> solmupintoineen.<br>
-        <i>Valitse ylhäältä <b>C₂H₄</b>, niin voit kokeilla suoraan LCAO-näkymää ja nähdä miten kahdesta hiilen 2p_x-atomiorbitaalista syntyy eteenin π-sidos!</i>
+        <i>Valitse ylhäältä <b>C₂H₄</b>, niin voit kokeilla suoraan LCAO-näkymää ja nähdä miten kahdesta hiilen 2p_z-atomiorbitaalista syntyy eteenin π-sidos!</i>
       </div>
     </div>
     """
@@ -830,7 +834,7 @@ def render_fmo_explanation_html(
         lcao_banner = """
       <div style="background:#eff6ff; border:1px solid #3b82f6; border-radius:6px; padding:10px 14px; margin-bottom:12px; font-size:12.5px; color:#1e40af;">
         <b>🔬 LCAO-tila aktiivinen (Linear Combination of Atomic Orbitals):</b><br>
-        Tarkastelet nyt kahden hiiliatomin erillisiä <b>2p_x-atomiorbitaaleja</b> ennen sidoksen muodostumista. 
+        Tarkastelet nyt kahden hiiliatomin erillisiä <b>2p_z-atomiorbitaaleja</b> ennen sidoksen muodostumista. 
         Klikkaa ylhäältä <b>"Muodostunut MO"</b> nähdäksesi, miten nämä atomiorbitaalit interferoivat keskenään muodostaen joko sitovan <b>π-kaksoissidoksen (HOMO)</b> tai hajottavan <b>π*-orbitaalin (LUMO)</b> ilman että 3D-kamera kääntyy!
       </div>
         """
@@ -1019,7 +1023,7 @@ def create_orbital_studio() -> widgets.VBox:
         layout=widgets.Layout(width="135px", height="32px")
     )
     btn_lcao_ao = widgets.Button(
-        description="Lähtö-AO:t (2 × 2pₓ)",
+        description="Lähtö-AO:t (2 × 2p_z)",
         button_style="primary" if state["lcao_mode"] == "AO" else "",
         layout=widgets.Layout(width="165px", height="32px")
     )
@@ -1175,7 +1179,7 @@ def create_orbital_studio() -> widgets.VBox:
         widgets.HTML("<b style='color:#334155; font-size:13px; margin-right:8px;'>LCAO-näkymä:</b>"),
         btn_lcao_mo,
         btn_lcao_ao,
-        widgets.HTML("<span style='color:#64748b; font-size:11.5px; margin-left:6px;'><i>(Kierrä molekyyliä ja vertaa hiilen 2p_x lähtöorbitaaleja ja niistä muodostuvaa π-sidosta)</i></span>"),
+        widgets.HTML("<span style='color:#64748b; font-size:11.5px; margin-left:6px;'><i>(Kierrä molekyyliä ja vertaa hiilen 2p_z lähtöorbitaaleja ja niistä muodostuvaa π-sidosta)</i></span>"),
     ], layout=widgets.Layout(align_items="center", display="none", margin="0 0 6px 0", gap="8px"))
 
     atom_orb_row = widgets.HBox([
