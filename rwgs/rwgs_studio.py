@@ -81,14 +81,14 @@ def xyz_h2o(r: float, theta_deg: float) -> str:
 # ==============================================================================
 current_geoms: Dict[str, str] = {
     "H2": "r = 4.00 Å",
-    "CO2": "r = 2.30 Å",
-    "CO": "r = 2.40 Å",
+    "CO2": "r = 4.00 Å",
+    "CO": "r = 4.00 Å",
     "H2O": "r = 1.50 Å, ∠ = 90°"
 }
 current_energies: Dict[str, float] = {
     "H2": dft_db.calc_1d("H2", 4.00)[1],
-    "CO2": dft_db.calc_1d("CO2", 2.30)[1],
-    "CO": dft_db.calc_1d("CO", 2.40)[1],
+    "CO2": dft_db.calc_1d("CO2", 4.00)[1],
+    "CO": dft_db.calc_1d("CO", 4.00)[1],
     "H2O": dft_db.calc_h2o(1.50, 90.0)[1]
 }
 
@@ -882,11 +882,11 @@ card_h2 = make_1d_card(
 )
 card_co2 = make_1d_card(
     "CO2", "CO₂: Lineaarinen symmetrinen venytys", "Lähtöaine", "r(C=O)",
-    xyz_co2, (0.85, 2.30), 2.30, (-1700, 300)
+    xyz_co2, (0.85, 4.00), 4.00, (-1700, 50)
 )
 card_co = make_1d_card(
     "CO", "CO: Kolmoissidoksen venytys", "Tuote", "r(C≡O)",
-    xyz_co, (0.80, 2.40), 2.40, (-1150, 250)
+    xyz_co, (0.80, 4.00), 4.00, (-1150, 50)
 )
 card_h2o = make_h2o_card()
 

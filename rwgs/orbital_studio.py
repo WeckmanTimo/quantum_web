@@ -616,7 +616,90 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str) -> str:
 
 
 # ==============================================================================
-# 3. Studion Päänäkymä
+# 3. Rajaorbitaalien (HOMO & LUMO) pedagoginen selvitys
+# ==============================================================================
+def render_fmo_explanation_html(selected_orb: str = "HOMO") -> str:
+    """
+    Palauttaa pedagogisen ja selkeän selvityksen HOMO- ja LUMO-lyhenteistä,
+    niiden fysikaalis-kemiallisesta taustasta sekä rajaorbitaaliteoriasta (FMO).
+    """
+    is_homo = (selected_orb == "HOMO")
+    is_homo_m1 = (selected_orb == "HOMO-1")
+    is_lumo = (selected_orb == "LUMO")
+    is_lumo_p1 = (selected_orb == "LUMO+1")
+
+    homo_border = "#0284c7" if is_homo else ("#38bdf8" if is_homo_m1 else "#e2e8f0")
+    homo_bg = "#f0f9ff" if (is_homo or is_homo_m1) else "#ffffff"
+    homo_badge = " <span style='background:#0284c7; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>VALITTUNA</span>" if is_homo else (" <span style='background:#0284c7; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>HOMO-1 VALITTUNA</span>" if is_homo_m1 else "")
+
+    lumo_border = "#d97706" if is_lumo else ("#fbbf24" if is_lumo_p1 else "#e2e8f0")
+    lumo_bg = "#fffbeb" if (is_lumo or is_lumo_p1) else "#ffffff"
+    lumo_badge = " <span style='background:#d97706; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>VALITTUNA</span>" if is_lumo else (" <span style='background:#d97706; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>LUMO+1 VALITTUNA</span>" if is_lumo_p1 else "")
+
+    return f"""
+    <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:16px 20px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:#1e293b; box-shadow:0 1px 3px rgba(0,0,0,0.04); margin-top:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
+        <h4 style="margin:0; font-size:15px; color:#0f172a; font-weight:700; display:flex; align-items:center; gap:6px;">
+          📚 Mistä lyhenteet HOMO ja LUMO tulevat? (Rajaorbitaalit / Frontier Molecular Orbitals)
+        </h4>
+        <span style="font-size:11.5px; color:#64748b; background:#f1f5f9; padding:2px 8px; border-radius:12px;">Nobel-palkittu teoria (1981)</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+        <!-- HOMO Kortti -->
+        <div style="background:{homo_bg}; border:2px solid {homo_border}; border-radius:8px; padding:12px 15px; transition:all 0.2s ease;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:13.5px; font-weight:700; color:#0284c7;">🔵 HOMO</span>
+            {homo_badge}
+          </div>
+          <div style="font-size:12px; font-weight:600; color:#334155; margin-bottom:6px;">
+            <b>H</b>ighest <b>O</b>ccupied <b>M</b>olecular <b>O</b>rbital<br>
+            <span style="color:#64748b; font-weight:400; font-style:italic;">(Korkein miehitetty molekyyliorbitaali)</span>
+          </div>
+          <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
+            • <b>Fysikaalinen merkitys:</b> Molekyylin korkeimman energian omaava orbitaali, jolla on perustilassa elektroneja. Tämä on molekyylin "uloimpien" valenssielektronien koti.
+          </p>
+          <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
+            • <b>Rooli kemiallisissa reaktioissa:</b> Koska nämä elektronit ovat heikoimmin sitoutuneita, molekyyli <b>luovuttaa elektroneja</b> juuri HOMOlta (toimii <i>nukleofiilinä</i> tai <i>Lewis-emäksenä</i>).
+          </p>
+          <div style="font-size:11.5px; background:rgba(2,132,199,0.08); padding:4px 8px; border-radius:4px; color:#0369a1;">
+            <b>HOMO-1:</b> Toiseksi korkein miehitetty orbitaali (heti HOMOn alapuolella).
+          </div>
+        </div>
+
+        <!-- LUMO Kortti -->
+        <div style="background:{lumo_bg}; border:2px solid {lumo_border}; border-radius:8px; padding:12px 15px; transition:all 0.2s ease;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:13.5px; font-weight:700; color:#d97706;">🟠 LUMO</span>
+            {lumo_badge}
+          </div>
+          <div style="font-size:12px; font-weight:600; color:#334155; margin-bottom:6px;">
+            <b>L</b>owest <b>U</b>noccupied <b>M</b>olecular <b>O</b>rbital<br>
+            <span style="color:#64748b; font-weight:400; font-style:italic;">(Matalin miehittämätön / tyhjä molekyyliorbitaali)</span>
+          </div>
+          <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
+            • <b>Fysikaalinen merkitys:</b> Molekyylin alimman energian omaava tyhjä orbitaali, jolla ei perustilassa ole elektroneja, mutta jolle elektronit voivat sijoittua.
+          </p>
+          <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
+            • <b>Rooli kemiallisissa reaktioissa:</b> Koska se on energialtaan helpoimmin saavutettavissa oleva vapaa tila, molekyyli <b>ottaa vastaan elektroneja</b> LUMOlle (toimii <i>elektrofiilinä</i> tai <i>Lewis-happona</i>).
+          </p>
+          <div style="font-size:11.5px; background:rgba(217,119,6,0.08); padding:4px 8px; border-radius:4px; color:#b45309;">
+            <b>LUMO+1:</b> Toiseksi matalin tyhjä orbitaali (heti LUMOn yläpuolella).
+          </div>
+        </div>
+      </div>
+
+      <!-- FMO teoria -->
+      <div style="background:#f8fafc; border-left:4px solid #6366f1; padding:9px 13px; border-radius:0 6px 6px 0; font-size:12px; line-height:1.5; color:#334155;">
+        <b>💡 Rajaorbitaaliteoria (Frontier Molecular Orbital, FMO):</b><br>
+        Molekyylin <b>HOMO</b> ja <b>LUMO</b> tunnetaan yhdessä <i>rajaorbitaaleina</i>. Japanilainen kemisti <b>Kenichi Fukui</b> osoitti, että useimmissa kemiallisissa reaktioissa uusi kovalenttinen sidos muodostuu, kun toisen molekyylin elektronirikas <b>HOMO</b> menee päällekkäin toisen molekyylin tyhjän <b>LUMO</b>:n kanssa (rakentava aaltointerferenssi). Tästä uraauurtavasta oivalluksesta Fukui ja Roald Hoffmann palkittiin <b>Nobelin kemianpalkinnolla vuonna 1981</b>. <i>(Katso havainnollinen esimerkki 5. välilehdeltä: syanidi-ionin HOMO luovuttaa elektroniparin formaldehydin LUMOlle!)</i>
+      </div>
+    </div>
+    """
+
+
+# ==============================================================================
+# 4. Studion Päänäkymä
 # ==============================================================================
 def create_orbital_studio() -> widgets.VBox:
     """Rakentaa ja palauttaa molekyyliorbitaalien 3D-studion ja suuren MO-kaavion."""
@@ -637,6 +720,11 @@ def create_orbital_studio() -> widgets.VBox:
     mo_diagram_box = widgets.HTML(
         value=render_mo_diagram_svg(state["mol"], state["orb"]),
         layout=widgets.Layout(width="100%", height="545px")
+    )
+
+    fmo_explanation_box = widgets.HTML(
+        value=render_fmo_explanation_html(state["orb"]),
+        layout=widgets.Layout(width="100%")
     )
 
     # Painikkeet vain kemiallisilla kaavoilla
@@ -711,6 +799,8 @@ def create_orbital_studio() -> widgets.VBox:
 
         # Päivitetään MO-kaavio oikealla
         mo_diagram_box.value = render_mo_diagram_svg(state["mol"], state["orb"])
+        # Päivitetään selityslaatikko korostaen valittua orbitaalia
+        fmo_explanation_box.value = render_fmo_explanation_html(state["orb"])
 
         # Lähetetään orbitaalivaihtokomento iframeen ILMAN iframen uudelleenlatausta!
         # Tämä säilyttää käyttäjän kääntämän orientaation ja zoomauksen täysin!
@@ -810,10 +900,12 @@ def create_orbital_studio() -> widgets.VBox:
         cmd_to_3d,
         header_html,
         control_card,
-        main_content_row
+        main_content_row,
+        fmo_explanation_box
     ], layout=widgets.Layout(width="100%", padding="4px 0"))
 
 
 if __name__ == "__main__":
     studio = create_orbital_studio()
     display(studio)
+
