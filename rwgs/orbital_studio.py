@@ -45,13 +45,19 @@ def render_molecule_3d_iframe(
     height: int = 540
 ) -> str:
     """
-    Palauttaa 3Dmol.js iframe -näkymän, joka sisältää kaikki 4 orbitaalia
-    kyseiselle molekyylille. Orbitaalin vaihto tapahtuu JavaScript-tasolla
+    Palauttaa 3Dmol.js iframe -näkymän, joka sisältää kaikki orbitaalit
+    kyseiselle molekyylille tai atomille. Orbitaalin vaihto tapahtuu JavaScript-tasolla
     ilman iframen uudelleenlatausta, jolloin käyttäjän kääntämä orientaatio säilyy!
     """
-    # Ladataan kaikki 4 orbitaalia JavaScriptin muistiin
     cubes_data = {}
-    for orb in ["HOMO-1", "HOMO", "LUMO", "LUMO+1"]:
+    if mol_key == "Atom":
+        possible_orbs = ["1s", "2s", "2pz", "2px", "2py", "sp3"]
+    elif mol_key == "C2H4":
+        possible_orbs = ["HOMO-1", "HOMO", "LUMO", "LUMO+1", "HOMO_AO", "LUMO_AO"]
+    else:
+        possible_orbs = ["HOMO-1", "HOMO", "LUMO", "LUMO+1"]
+
+    for orb in possible_orbs:
         fn = os.path.join(CUBES_DIR, f"{mol_key}_{orb}.cube")
         if os.path.exists(fn):
             with open(fn, "r", encoding="utf-8") as f:
@@ -59,6 +65,9 @@ def render_molecule_3d_iframe(
 
     cubes_json = json.dumps(cubes_data)
     initial_cube = cubes_data.get(initial_orb_key, "")
+    if not initial_cube and cubes_data:
+        initial_orb_key = list(cubes_data.keys())[0]
+        initial_cube = cubes_data[initial_orb_key]
 
     inner_html = f"""<!DOCTYPE html>
 <html>
@@ -110,7 +119,8 @@ def render_molecule_3d_iframe(
           stick: {{ radius: 0.14, color: "#64748b" }}
         }});
         viewer.addStyle({{ elem: "H" }}, {{ sphere: {{ radius: 0.42, color: "#FFFFFF" }} }});
-        viewer.addStyle({{ elem: "C" }}, {{ sphere: {{ radius: 0.62, color: "#334155" }} }});
+        const cRadius = ("{mol_key}" === "Atom") ? 0.30 : 0.62;
+        viewer.addStyle({{ elem: "C" }}, {{ sphere: {{ radius: cRadius, color: "#334155" }} }});
         viewer.addStyle({{ elem: "O" }}, {{ sphere: {{ radius: 0.58, color: "#DC2626" }} }});
 
         // Lisätään orbitaalipinnat (isopinta 0.03)
@@ -232,7 +242,7 @@ def draw_single(x: float, y: float, color: str = "#0284c7") -> str:
     )
 
 
-def render_mo_diagram_svg(mol_key: str, selected_orb_key: str) -> str:
+def render_mo_diagram_svg(mol_key: str, selected_orb_key: str, lcao_mode: str = "MO") -> str:
     """Luo ja palauttaa selkeän, oppikirjamaisen SVG-diagrammin valkoisella taustalla."""
     bg = "#ffffff"
     corr_col = "rgba(71, 85, 105, 0.45)"
@@ -563,25 +573,35 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str) -> str:
         svg_lines.append(draw_pair(87.5, 300))
         svg_lines.append(text(40, 305, "σ(sp²)", anchor="end", size=12))
 
-        svg_lines.append(line(60, 160, 115, 160))
+        # Jos LCAO AO -tila on valittu, korostetaan molemmat 2p_x lähtö-AO:t
+        is_ao_mode = (lcao_mode == "AO")
+        px1_col = lvl_hi_occ if is_ao_mode else lvl_norm
+        px1_w = 4.5 if is_ao_mode else 2.5
+        svg_lines.append(line(60, 160, 115, 160, color=px1_col, width=px1_w))
         svg_lines.append(draw_single(87.5, 160))
-        svg_lines.append(text(40, 165, "2p_x (π)", anchor="end", size=12))
+        svg_lines.append(text(40, 165, "2p_x (π)", anchor="end", size=12, weight="bold" if is_ao_mode else "normal", color=px1_col))
+        if is_ao_mode:
+            svg_lines.append(text(87.5, 142, "AO (1) ◄", anchor="middle", size=11, weight="bold", color=lvl_hi_occ))
 
         # CH2 (2)
         svg_lines.append(line(425, 300, 480, 300))
         svg_lines.append(draw_pair(452.5, 300))
         svg_lines.append(text(500, 305, "σ(sp²)", anchor="start", size=12))
 
-        svg_lines.append(line(425, 160, 480, 160))
+        px2_col = lvl_hi_occ if is_ao_mode else lvl_norm
+        px2_w = 4.5 if is_ao_mode else 2.5
+        svg_lines.append(line(425, 160, 480, 160, color=px2_col, width=px2_w))
         svg_lines.append(draw_single(452.5, 160))
-        svg_lines.append(text(500, 165, "2p_x (π)", anchor="start", size=12))
+        svg_lines.append(text(500, 165, "2p_x (π)", anchor="start", size=12, weight="bold" if is_ao_mode else "normal", color=px2_col))
+        if is_ao_mode:
+            svg_lines.append(text(452.5, 142, "► AO (2)", anchor="middle", size=11, weight="bold", color=lvl_hi_occ))
 
         # MOt
         svg_lines.append(line(240, 460, 300, 460))
         svg_lines.append(draw_pair(270, 460))
         svg_lines.append(text(225, 465, "σ (C-C sidos)", anchor="end", size=12))
 
-        is_h_m1 = (selected_orb_key == "HOMO-1")
+        is_h_m1 = (selected_orb_key == "HOMO-1" and not is_ao_mode)
         c_hm1 = lvl_hi_occ if is_h_m1 else lvl_norm
         svg_lines.append(line(240, 230, 300, 230, color=c_hm1, width=4.5 if is_h_m1 else 2.5))
         svg_lines.append(draw_pair(270, 230))
@@ -589,7 +609,7 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str) -> str:
         if is_h_m1:
             svg_lines.append(text(315, 235, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
 
-        is_homo = (selected_orb_key == "HOMO")
+        is_homo = (selected_orb_key == "HOMO" and not is_ao_mode)
         c_h = lvl_hi_occ if is_homo else lvl_norm
         svg_lines.append(line(240, 160, 300, 160, color=c_h, width=4.5 if is_homo else 2.5))
         svg_lines.append(draw_pair(270, 160))
@@ -597,19 +617,113 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str) -> str:
         if is_homo:
             svg_lines.append(text(315, 165, "◄ 3D-malli (C=C π-sidos)", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
 
-        is_lumo = (selected_orb_key == "LUMO")
+        is_lumo = (selected_orb_key == "LUMO" and not is_ao_mode)
         c_l = lvl_hi_virt if is_lumo else lvl_norm
         svg_lines.append(line(240, 80, 300, 80, color=c_l, width=4.5 if is_lumo else 2.5))
         svg_lines.append(text(225, 85, "1b₂g* (LUMO, π*)", anchor="end", size=12, color=c_l))
         if is_lumo:
             svg_lines.append(text(315, 85, "◄ 3D-malli (π*-hajoittava)", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
 
-        is_lp1 = (selected_orb_key == "LUMO+1")
+        is_lp1 = (selected_orb_key == "LUMO+1" and not is_ao_mode)
         c_lp1 = lvl_hi_virt if is_lp1 else lvl_norm
         svg_lines.append(line(240, 35, 300, 35, color=c_lp1, width=4.5 if is_lp1 else 2.5))
         svg_lines.append(text(225, 40, "3a_g* (LUMO+1, σ*)", anchor="end", size=12, color=c_lp1))
         if is_lp1:
             svg_lines.append(text(315, 40, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+
+        if is_ao_mode:
+            svg_lines.append(text(270, 125, "◄ 3D-malli: Lähtö-AO:t (2 × C 2p_x)", anchor="middle", size=12, weight="bold", color=lvl_hi_occ))
+
+    # --------------------------------------------------------------------------
+    # 2.5. Atomi (Hiili, C) – Aufbau, Hundin sääntö ja kvanttiluvut
+    # --------------------------------------------------------------------------
+    elif mol_key == "Atom":
+        svg_lines.append(text(270, 24, "Hiiliatomi (C) – Atomiorbitaalien energiatasot", size=14, weight="bold"))
+        svg_lines.append(text(270, 44, "Elektronikonfiguraatio 1s² 2s² 2p² (Aufbau & Hund)", size=12, color=text_sub))
+
+        # Pystyakseli (Energia)
+        svg_lines.append(line(50, 485, 50, 70, color="#64748b", width=2.0))
+        svg_lines.append('<polygon points="50,60 45,74 55,74" fill="#64748b"/>')
+        svg_lines.append(text(40, 65, "E", anchor="end", size=13, weight="bold", color="#64748b"))
+
+        # Kvanttilukutaulukko / selitteet oikeassa laidassa
+        svg_lines.append(text(435, 75, "Kvanttiluvut (n, l, m):", anchor="middle", size=12, weight="bold", color=text_sub))
+
+        # 1s (y = 445)
+        is_1s = (selected_orb_key == "1s")
+        col_1s = lvl_hi_occ if is_1s else lvl_norm
+        w_1s = 4.5 if is_1s else 2.5
+        svg_lines.append(line(170, 445, 310, 445, color=col_1s, width=w_1s))
+        svg_lines.append(draw_pair(240, 445))
+        svg_lines.append(text(150, 449, "1s", anchor="end", size=13, weight="bold", color=col_1s))
+        svg_lines.append(text(435, 449, "n=1, l=0 (ei solmuja)", anchor="middle", size=11, color=text_sub))
+        if is_1s:
+            svg_lines.append(text(325, 449, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+
+        # 2s (y = 330)
+        is_2s = (selected_orb_key == "2s")
+        col_2s = lvl_hi_occ if is_2s else lvl_norm
+        w_2s = 4.5 if is_2s else 2.5
+        svg_lines.append(line(170, 330, 310, 330, color=col_2s, width=w_2s))
+        svg_lines.append(draw_pair(240, 330))
+        svg_lines.append(text(150, 334, "2s", anchor="end", size=13, weight="bold", color=col_2s))
+        svg_lines.append(text(435, 334, "n=2, l=0 (1 radiaalinen solmu)", anchor="middle", size=11, color=text_sub))
+        if is_2s:
+            svg_lines.append(text(325, 334, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+
+        # 2p degeneroidut tasot (y = 190): 2p_x, 2p_y, 2p_z
+        # Hundin säännön mukaan 2p_x ja 2p_y ovat parittomasti miehitettyjä, 2p_z on tyhjä
+        is_2px = (selected_orb_key == "2px")
+        is_2py = (selected_orb_key == "2py")
+        is_2pz = (selected_orb_key == "2pz")
+
+        col_2px = lvl_hi_occ if is_2px else lvl_norm
+        col_2py = lvl_hi_occ if is_2py else lvl_norm
+        col_2pz = lvl_hi_virt if is_2pz else lvl_norm
+
+        w_2px = 4.5 if is_2px else 2.5
+        w_2py = 4.5 if is_2py else 2.5
+        w_2pz = 4.5 if is_2pz else 2.5
+
+        # 2p_x (130 - 180)
+        svg_lines.append(line(130, 190, 180, 190, color=col_2px, width=w_2px))
+        svg_lines.append(draw_single(155, 190))
+        svg_lines.append(text(155, 212, "2p_x", anchor="middle", size=12, weight="bold", color=col_2px))
+
+        # 2p_y (215 - 265)
+        svg_lines.append(line(215, 190, 265, 190, color=col_2py, width=w_2py))
+        svg_lines.append(draw_single(240, 190))
+        svg_lines.append(text(240, 212, "2p_y", anchor="middle", size=12, weight="bold", color=col_2py))
+
+        # 2p_z (300 - 350)
+        svg_lines.append(line(300, 190, 350, 190, color=col_2pz, width=w_2pz))
+        svg_lines.append(text(325, 212, "2p_z", anchor="middle", size=12, weight="bold", color=col_2pz))
+
+        svg_lines.append(text(110, 194, "2p", anchor="end", size=13, weight="bold", color=text_main))
+        svg_lines.append(text(435, 194, "n=2, l=1 (1 kulmasolmutaso)", anchor="middle", size=11, color=text_sub))
+
+        if is_2px:
+            svg_lines.append(text(155, 168, "◄ 3D", anchor="middle", size=11, weight="bold", color=lvl_hi_occ))
+        elif is_2py:
+            svg_lines.append(text(240, 168, "◄ 3D", anchor="middle", size=11, weight="bold", color=lvl_hi_occ))
+        elif is_2pz:
+            svg_lines.append(text(325, 168, "◄ 3D", anchor="middle", size=11, weight="bold", color=lvl_hi_virt))
+
+        # sp^3 hybriditaso (y = 255, katkoviiva s- ja p-tasojen välissä)
+        is_sp3 = (selected_orb_key == "sp3")
+        col_sp3 = "#8b5cf6" if is_sp3 else "#94a3b8"
+        w_sp3 = 3.5 if is_sp3 else 1.8
+        dash_sp3 = "" if is_sp3 else "4,3"
+        svg_lines.append(line(160, 255, 320, 255, color=col_sp3, width=w_sp3, dash=dash_sp3))
+        svg_lines.append(text(145, 259, "sp³", anchor="end", size=12, weight="bold", color=col_sp3))
+        svg_lines.append(text(435, 259, "1×2s + 3×2p hybridisaatio", anchor="middle", size=11, color=col_sp3))
+        if is_sp3:
+            svg_lines.append(text(335, 259, "◄ 3D (tetraedri)", anchor="start", size=12, weight="bold", color="#8b5cf6"))
+
+        # Alareunan säännöt
+        svg_lines.append('<rect x="30" y="490" width="480" height="52" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>')
+        svg_lines.append(text(270, 510, "Aufbau-periaate: 1s < 2s < 2p täyttyy energian mukaan", anchor="middle", size=11.5, weight="bold", color=text_main))
+        svg_lines.append(text(270, 528, "Hundin sääntö: degeneroidut 2p-tilat miehittyvät yksittäin samansuuntaisin spinein", anchor="middle", size=11, color=text_sub))
 
     svg_lines.append("</svg>")
     return "".join(svg_lines)
@@ -618,11 +732,86 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str) -> str:
 # ==============================================================================
 # 3. Rajaorbitaalien (HOMO & LUMO) pedagoginen selvitys
 # ==============================================================================
-def render_fmo_explanation_html(selected_orb: str = "HOMO") -> str:
+def render_fmo_explanation_html(
+    selected_orb: str = "HOMO",
+    selected_mol: str = "CO",
+    lcao_mode: str = "MO"
+) -> str:
     """
     Palauttaa pedagogisen ja selkeän selvityksen HOMO- ja LUMO-lyhenteistä,
-    niiden fysikaalis-kemiallisesta taustasta sekä rajaorbitaaliteoriasta (FMO).
+    atomiorbitaalien kvanttiluvuista ja solmuista tai LCAO-periaatteesta.
     """
+    if selected_mol == "Atom":
+        is_s = selected_orb in ["1s", "2s"]
+        is_p = selected_orb in ["2px", "2py", "2pz"]
+        is_sp3 = (selected_orb == "sp3")
+
+        s_border = "#0284c7" if is_s else "#e2e8f0"
+        s_bg = "#f0f9ff" if is_s else "#ffffff"
+        s_badge = f" <span style='background:#0284c7; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>{selected_orb.upper()} VALITTUNA</span>" if is_s else ""
+
+        p_border = "#d97706" if is_p else ("#8b5cf6" if is_sp3 else "#e2e8f0")
+        p_bg = "#fffbeb" if is_p else ("#f5f3ff" if is_sp3 else "#ffffff")
+        p_badge = f" <span style='background:#d97706; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>{selected_orb.upper()} VALITTUNA</span>" if is_p else (
+            " <span style='background:#8b5cf6; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>SP³ VALITTUNA</span>" if is_sp3 else ""
+        )
+
+        return f"""
+    <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:16px 20px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:#1e293b; box-shadow:0 1px 3px rgba(0,0,0,0.04); margin-top:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
+        <h4 style="margin:0; font-size:15px; color:#0f172a; font-weight:700; display:flex; align-items:center; gap:6px;">
+          ⚛️ Atomiorbitaalit (AO), aaltofunktio ψ ja kvanttiluvut
+        </h4>
+        <span style="font-size:11.5px; color:#64748b; background:#f1f5f9; padding:2px 8px; border-radius:12px;">Schrödingerin yhtälön ratkaisut</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+        <!-- s-orbitaalit ja aaltofunktio -->
+        <div style="background:{s_bg}; border:2px solid {s_border}; border-radius:8px; padding:12px 15px; transition:all 0.2s ease;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:13.5px; font-weight:700; color:#0284c7;">🔵 s-orbitaalit (l = 0) & Aaltofunktio ψ</span>
+            {s_badge}
+          </div>
+          <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
+            • <b>Pallosymmetrinen aalto:</b> s-orbitaaleilla sivukvanttiluku on <i>l = 0</i>. Elektronitiheys riippuu vain etäisyydestä ytimeen, ei suunnasta.
+          </p>
+          <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
+            • <b>Aallon vaihe (+ / -):</b> 3D-kuvassa sininen väri kuvaa aaltofunktion positiivista arvoa (ψ > 0) ja punainen negatiivista (ψ < 0). Elektronin löytymistodennäköisyys on |ψ|², joten molemmat vaiheet kuvaavat yhtä lailla elektronitiheyttä.
+          </p>
+          <div style="font-size:11.5px; background:rgba(2,132,199,0.08); padding:4px 8px; border-radius:4px; color:#0369a1;">
+            <b>Radiaalinen solmupinta:</b> 1s-orbitaalilla ei ole solmuja; 2s-orbitaalilla on 1 pallomainen solmupinta ytimen lähellä, jossa ψ vaihtaa merkkiä.
+          </div>
+        </div>
+
+        <!-- p-orbitaalit ja hybridisaatio -->
+        <div style="background:{p_bg}; border:2px solid {p_border}; border-radius:8px; padding:12px 15px; transition:all 0.2s ease;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:13.5px; font-weight:700; color:#d97706;">🟠 p-orbitaalit (l = 1) & sp³-hybridisaatio</span>
+            {p_badge}
+          </div>
+          <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
+            • <b>Suunnatut lohkot ja kulmasolmu:</b> p-orbitaaleilla (l = 1) on kaksi vastakkaismerkkistä lohkoa (+ ja -), joiden välissä ytimen läpi kulkee tasomainen solmupinta (ψ = 0).
+          </p>
+          <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
+            • <b>Avaruudelliset suuntaukset:</b> 2p_x, 2p_y ja 2p_z ovat keskenään kohtisuorassa (magneettinen kvanttiluku m_l = -1, 0, +1).
+          </p>
+          <div style="font-size:11.5px; background:rgba(139,92,246,0.1); padding:4px 8px; border-radius:4px; color:#6d28d9;">
+            <b>sp³-hybridisaatio:</b> Yhdistää yhden 2s- ja kolme 2p-orbitaalia neljäksi suunnatuksi hybridiorbitaaliksi (tetraedrikulma 109.5°), kuten hiilellä metaanissa (CH₄).
+          </div>
+        </div>
+      </div>
+
+      <!-- LCAO periaate -->
+      <div style="background:#f8fafc; border-left:4px solid #0ea5e9; padding:9px 13px; border-radius:0 6px 6px 0; font-size:12px; line-height:1.5; color:#334155;">
+        <b>💡 Miten atomiorbitaaleista syntyy molekyyliorbitaaleja (LCAO)?</b><br>
+        Molekyyliorbitaaliteoria perustuu atomiorbitaalien lineaariseen yhdistämiseen (<i>Linear Combination of Atomic Orbitals, LCAO</i>): <b>ψ_MO = c₁ φ_AO,1 ± c₂ φ_AO,2</b>. 
+        Kun samanvaiheiset lohkot (+ ja +) kohtaavat, aallot vahvistavat toisiaan muodostaen <b>sitovan molekyyliorbitaalin</b>. Kun erivaiheiset lohkot (+ ja -) kohtaavat, aallot kumoavat toisensa muodostaen <b>hajottavan orbitaalin</b> solmupintoineen.<br>
+        <i>Valitse ylhäältä <b>C₂H₄</b>, niin voit kokeilla suoraan LCAO-näkymää ja nähdä miten kahdesta hiilen 2p_x-atomiorbitaalista syntyy eteenin π-sidos!</i>
+      </div>
+    </div>
+    """
+
+    # Molekyylit (CO, H2O, CO2, C2H4)
     is_homo = (selected_orb == "HOMO")
     is_homo_m1 = (selected_orb == "HOMO-1")
     is_lumo = (selected_orb == "LUMO")
@@ -636,6 +825,16 @@ def render_fmo_explanation_html(selected_orb: str = "HOMO") -> str:
     lumo_bg = "#fffbeb" if (is_lumo or is_lumo_p1) else "#ffffff"
     lumo_badge = " <span style='background:#d97706; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>VALITTUNA</span>" if is_lumo else (" <span style='background:#d97706; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>LUMO+1 VALITTUNA</span>" if is_lumo_p1 else "")
 
+    lcao_banner = ""
+    if selected_mol == "C2H4" and lcao_mode == "AO":
+        lcao_banner = """
+      <div style="background:#eff6ff; border:1px solid #3b82f6; border-radius:6px; padding:10px 14px; margin-bottom:12px; font-size:12.5px; color:#1e40af;">
+        <b>🔬 LCAO-tila aktiivinen (Linear Combination of Atomic Orbitals):</b><br>
+        Tarkastelet nyt kahden hiiliatomin erillisiä <b>2p_x-atomiorbitaaleja</b> ennen sidoksen muodostumista. 
+        Klikkaa ylhäältä <b>"Muodostunut MO"</b> nähdäksesi, miten nämä atomiorbitaalit interferoivat keskenään muodostaen joko sitovan <b>π-kaksoissidoksen (HOMO)</b> tai hajottavan <b>π*-orbitaalin (LUMO)</b> ilman että 3D-kamera kääntyy!
+      </div>
+        """
+
     return f"""
     <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:16px 20px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:#1e293b; box-shadow:0 1px 3px rgba(0,0,0,0.04); margin-top:14px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
@@ -644,6 +843,8 @@ def render_fmo_explanation_html(selected_orb: str = "HOMO") -> str:
         </h4>
         <span style="font-size:11.5px; color:#64748b; background:#f1f5f9; padding:2px 8px; border-radius:12px;">Nobel-palkittu teoria (1981)</span>
       </div>
+
+      {lcao_banner}
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
         <!-- HOMO Kortti -->
@@ -704,6 +905,8 @@ def create_orbital_studio() -> widgets.VBox:
     state = {
         "mol": "CO",
         "orb": "HOMO",
+        "atom_orb": "2pz",
+        "lcao_mode": "MO",
     }
 
     # Piilotettu ohjauskenttä Pythonista selaimen 3D-iframeen (ei riko kameraa!)
@@ -716,12 +919,12 @@ def create_orbital_studio() -> widgets.VBox:
     )
 
     mo_diagram_box = widgets.HTML(
-        value=render_mo_diagram_svg(state["mol"], state["orb"]),
+        value=render_mo_diagram_svg(state["mol"], state["orb"], state["lcao_mode"]),
         layout=widgets.Layout(width="100%", height="545px")
     )
 
     fmo_explanation_box = widgets.HTML(
-        value=render_fmo_explanation_html(state["orb"]),
+        value=render_fmo_explanation_html(state["orb"], selected_mol=state["mol"], lcao_mode=state["lcao_mode"]),
         layout=widgets.Layout(width="100%")
     )
 
@@ -730,22 +933,27 @@ def create_orbital_studio() -> widgets.VBox:
         "CO": widgets.Button(
             description="CO",
             button_style="primary" if state["mol"] == "CO" else "",
-            layout=widgets.Layout(width="95px", height="34px")
+            layout=widgets.Layout(width="80px", height="34px")
         ),
         "H2O": widgets.Button(
             description="H₂O",
             button_style="primary" if state["mol"] == "H2O" else "",
-            layout=widgets.Layout(width="95px", height="34px")
+            layout=widgets.Layout(width="80px", height="34px")
         ),
         "CO2": widgets.Button(
             description="CO₂",
             button_style="primary" if state["mol"] == "CO2" else "",
-            layout=widgets.Layout(width="95px", height="34px")
+            layout=widgets.Layout(width="80px", height="34px")
         ),
         "C2H4": widgets.Button(
             description="C₂H₄",
             button_style="primary" if state["mol"] == "C2H4" else "",
-            layout=widgets.Layout(width="95px", height="34px")
+            layout=widgets.Layout(width="80px", height="34px")
+        ),
+        "Atom": widgets.Button(
+            description="Atomi (AO)",
+            button_style="primary" if state["mol"] == "Atom" else "",
+            layout=widgets.Layout(width="100px", height="34px")
         ),
     }
 
@@ -772,6 +980,58 @@ def create_orbital_studio() -> widgets.VBox:
         ),
     }
 
+    atom_orb_btns = {
+        "1s": widgets.Button(
+            description="1s",
+            button_style="info" if state["atom_orb"] == "1s" else "",
+            layout=widgets.Layout(width="72px", height="34px")
+        ),
+        "2s": widgets.Button(
+            description="2s",
+            button_style="info" if state["atom_orb"] == "2s" else "",
+            layout=widgets.Layout(width="72px", height="34px")
+        ),
+        "2pz": widgets.Button(
+            description="2p_z",
+            button_style="warning" if state["atom_orb"] == "2pz" else "",
+            layout=widgets.Layout(width="72px", height="34px")
+        ),
+        "2px": widgets.Button(
+            description="2p_x",
+            button_style="info" if state["atom_orb"] == "2px" else "",
+            layout=widgets.Layout(width="72px", height="34px")
+        ),
+        "2py": widgets.Button(
+            description="2p_y",
+            button_style="info" if state["atom_orb"] == "2py" else "",
+            layout=widgets.Layout(width="72px", height="34px")
+        ),
+        "sp3": widgets.Button(
+            description="sp³",
+            button_style="success" if state["atom_orb"] == "sp3" else "",
+            layout=widgets.Layout(width="72px", height="34px")
+        ),
+    }
+
+    btn_lcao_mo = widgets.Button(
+        description="Muodostunut MO",
+        button_style="primary" if state["lcao_mode"] == "MO" else "",
+        layout=widgets.Layout(width="135px", height="32px")
+    )
+    btn_lcao_ao = widgets.Button(
+        description="Lähtö-AO:t (2 × 2pₓ)",
+        button_style="primary" if state["lcao_mode"] == "AO" else "",
+        layout=widgets.Layout(width="165px", height="32px")
+    )
+
+    def get_c2h4_cube_key() -> str:
+        if state["lcao_mode"] == "AO":
+            if state["orb"] == "HOMO":
+                return "HOMO_AO"
+            elif state["orb"] == "LUMO":
+                return "LUMO_AO"
+        return state["orb"]
+
     def on_mol_button_clicked(m_key: str):
         if state["mol"] == m_key:
             return
@@ -780,13 +1040,31 @@ def create_orbital_studio() -> widgets.VBox:
         for k, btn in mol_btns.items():
             btn.button_style = "primary" if k == m_key else ""
 
-        # Uuden molekyylin lataus iframessa (asettuu poikittain)
-        viewer_3d_box.value = render_molecule_3d_iframe(state["mol"], state["orb"], width=580, height=540)
-        mo_diagram_box.value = render_mo_diagram_svg(state["mol"], state["orb"])
+        if m_key == "Atom":
+            orb_row.layout.display = "none"
+            lcao_row.layout.display = "none"
+            atom_orb_row.layout.display = "flex"
+            cur_orb = state["atom_orb"]
+            viewer_3d_box.value = render_molecule_3d_iframe("Atom", cur_orb, width=580, height=540)
+            mo_diagram_box.value = render_mo_diagram_svg("Atom", cur_orb)
+            fmo_explanation_box.value = render_fmo_explanation_html(cur_orb, selected_mol="Atom")
+        elif m_key == "C2H4":
+            orb_row.layout.display = "flex"
+            lcao_row.layout.display = "flex"
+            atom_orb_row.layout.display = "none"
+            cur_cube = get_c2h4_cube_key()
+            viewer_3d_box.value = render_molecule_3d_iframe("C2H4", cur_cube, width=580, height=540)
+            mo_diagram_box.value = render_mo_diagram_svg("C2H4", state["orb"], state["lcao_mode"])
+            fmo_explanation_box.value = render_fmo_explanation_html(state["orb"], selected_mol="C2H4", lcao_mode=state["lcao_mode"])
+        else:
+            orb_row.layout.display = "flex"
+            lcao_row.layout.display = "none"
+            atom_orb_row.layout.display = "none"
+            viewer_3d_box.value = render_molecule_3d_iframe(state["mol"], state["orb"], width=580, height=540)
+            mo_diagram_box.value = render_mo_diagram_svg(state["mol"], state["orb"])
+            fmo_explanation_box.value = render_fmo_explanation_html(state["orb"], selected_mol=state["mol"])
 
     def on_orb_button_clicked(o_key: str):
-        if state["orb"] == o_key:
-            return
         state["orb"] = o_key
 
         for k, btn in orb_btns.items():
@@ -795,54 +1073,126 @@ def create_orbital_studio() -> widgets.VBox:
             else:
                 btn.button_style = "warning" if k == o_key else ""
 
-        # Päivitetään MO-kaavio oikealla
-        mo_diagram_box.value = render_mo_diagram_svg(state["mol"], state["orb"])
-        # Päivitetään selityslaatikko korostaen valittua orbitaalia
-        fmo_explanation_box.value = render_fmo_explanation_html(state["orb"])
+        target_cube = o_key
+        if state["mol"] == "C2H4":
+            target_cube = get_c2h4_cube_key()
 
-        # Lähetetään orbitaalivaihtokomento iframeen ILMAN iframen uudelleenlatausta!
-        # Tämä säilyttää käyttäjän kääntämän orientaation ja zoomauksen täysin!
+        mo_diagram_box.value = render_mo_diagram_svg(state["mol"], state["orb"], state["lcao_mode"])
+        fmo_explanation_box.value = render_fmo_explanation_html(state["orb"], selected_mol=state["mol"], lcao_mode=state["lcao_mode"])
+
         cmd_to_3d.value = json.dumps({
             "id": time.time(),
-            "orb": o_key
+            "orb": target_cube
+        })
+
+    def on_lcao_mode_clicked(mode: str):
+        if state["lcao_mode"] == mode:
+            return
+        state["lcao_mode"] = mode
+
+        btn_lcao_mo.button_style = "primary" if mode == "MO" else ""
+        btn_lcao_ao.button_style = "primary" if mode == "AO" else ""
+
+        if mode == "AO" and state["orb"] not in ["HOMO", "LUMO"]:
+            state["orb"] = "HOMO"
+            for k, btn in orb_btns.items():
+                btn.button_style = "info" if k == "HOMO" else ""
+
+        target_cube = get_c2h4_cube_key()
+        mo_diagram_box.value = render_mo_diagram_svg("C2H4", state["orb"], state["lcao_mode"])
+        fmo_explanation_box.value = render_fmo_explanation_html(state["orb"], selected_mol="C2H4", lcao_mode=state["lcao_mode"])
+
+        cmd_to_3d.value = json.dumps({
+            "id": time.time(),
+            "orb": target_cube
+        })
+
+    def on_atom_orb_clicked(a_key: str):
+        state["atom_orb"] = a_key
+
+        for k, btn in atom_orb_btns.items():
+            if k == "sp3":
+                btn.button_style = "success" if k == a_key else ""
+            elif k in ["1s", "2s", "2px", "2py"]:
+                btn.button_style = "info" if k == a_key else ""
+            else:
+                btn.button_style = "warning" if k == a_key else ""
+
+        mo_diagram_box.value = render_mo_diagram_svg("Atom", state["atom_orb"])
+        fmo_explanation_box.value = render_fmo_explanation_html(state["atom_orb"], selected_mol="Atom")
+
+        cmd_to_3d.value = json.dumps({
+            "id": time.time(),
+            "orb": a_key
         })
 
     mol_btns["CO"].on_click(lambda _: on_mol_button_clicked("CO"))
     mol_btns["H2O"].on_click(lambda _: on_mol_button_clicked("H2O"))
     mol_btns["CO2"].on_click(lambda _: on_mol_button_clicked("CO2"))
     mol_btns["C2H4"].on_click(lambda _: on_mol_button_clicked("C2H4"))
+    mol_btns["Atom"].on_click(lambda _: on_mol_button_clicked("Atom"))
 
     orb_btns["HOMO-1"].on_click(lambda _: on_orb_button_clicked("HOMO-1"))
     orb_btns["HOMO"].on_click(lambda _: on_orb_button_clicked("HOMO"))
     orb_btns["LUMO"].on_click(lambda _: on_orb_button_clicked("LUMO"))
     orb_btns["LUMO+1"].on_click(lambda _: on_orb_button_clicked("LUMO+1"))
 
+    btn_lcao_mo.on_click(lambda _: on_lcao_mode_clicked("MO"))
+    btn_lcao_ao.on_click(lambda _: on_lcao_mode_clicked("AO"))
+
+    atom_orb_btns["1s"].on_click(lambda _: on_atom_orb_clicked("1s"))
+    atom_orb_btns["2s"].on_click(lambda _: on_atom_orb_clicked("2s"))
+    atom_orb_btns["2pz"].on_click(lambda _: on_atom_orb_clicked("2pz"))
+    atom_orb_btns["2px"].on_click(lambda _: on_atom_orb_clicked("2px"))
+    atom_orb_btns["2py"].on_click(lambda _: on_atom_orb_clicked("2py"))
+    atom_orb_btns["sp3"].on_click(lambda _: on_atom_orb_clicked("sp3"))
+
     # Asettelu
     header_html = widgets.HTML("""
     <div style="font-size:16px; font-weight:700; color:#0f172a; margin-bottom:10px; letter-spacing:-0.01em;">
-      ⚛️ Molekyyliorbitaalit (3D-pinnat & MO-korrelaatiokaavio)
+      ⚛️ Molekyyli- ja atomiorbitaalit (3D-pinnat, MO-kaavio & LCAO)
     </div>
     """)
 
     mol_row = widgets.HBox([
-        widgets.HTML("<b style='color:#334155; font-size:13px; margin-right:8px;'>Molekyyli:</b>"),
+        widgets.HTML("<b style='color:#334155; font-size:13px; margin-right:8px;'>Kohde:</b>"),
         mol_btns["CO"],
         mol_btns["H2O"],
         mol_btns["CO2"],
         mol_btns["C2H4"],
+        mol_btns["Atom"],
     ], layout=widgets.Layout(align_items="center", margin="0 0 8px 0", gap="8px"))
 
     orb_row = widgets.HBox([
-        widgets.HTML("<b style='color:#334155; font-size:13px; margin-right:8px;'>Orbitaali:</b>"),
+        widgets.HTML("<b style='color:#334155; font-size:13px; margin-right:8px;'>Molekyyliorbitaali:</b>"),
         orb_btns["HOMO-1"],
         orb_btns["HOMO"],
         orb_btns["LUMO"],
         orb_btns["LUMO+1"],
-    ], layout=widgets.Layout(align_items="center", gap="8px"))
+    ], layout=widgets.Layout(align_items="center", margin="0 0 6px 0", gap="8px"))
+
+    lcao_row = widgets.HBox([
+        widgets.HTML("<b style='color:#334155; font-size:13px; margin-right:8px;'>LCAO-näkymä:</b>"),
+        btn_lcao_mo,
+        btn_lcao_ao,
+        widgets.HTML("<span style='color:#64748b; font-size:11.5px; margin-left:6px;'><i>(Kierrä molekyyliä ja vertaa hiilen 2p_x lähtöorbitaaleja ja niistä muodostuvaa π-sidosta)</i></span>"),
+    ], layout=widgets.Layout(align_items="center", display="none", margin="0 0 6px 0", gap="8px"))
+
+    atom_orb_row = widgets.HBox([
+        widgets.HTML("<b style='color:#334155; font-size:13px; margin-right:8px;'>Atomiorbitaali:</b>"),
+        atom_orb_btns["1s"],
+        atom_orb_btns["2s"],
+        atom_orb_btns["2pz"],
+        atom_orb_btns["2px"],
+        atom_orb_btns["2py"],
+        atom_orb_btns["sp3"],
+    ], layout=widgets.Layout(align_items="center", display="none", margin="0 0 6px 0", gap="8px"))
 
     control_card = widgets.VBox([
         mol_row,
-        orb_row
+        orb_row,
+        lcao_row,
+        atom_orb_row
     ], layout=widgets.Layout(
         background="#ffffff",
         padding="12px 18px",
