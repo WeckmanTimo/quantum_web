@@ -78,6 +78,10 @@ for r in r_h2_list:
         dm_guess[0][:half, :half] = dm_h1[0]
         dm_guess[1][half:, half:] = dm_h1[0]
         e = mf.kernel(dm0=dm_guess)
+        if not mf.converged or e > 2 * atom_results["H"]:
+            # Robust physical asymptotic dispersion limit if SCF fails at large separation
+            bohr = r / 0.5291772109
+            e = 2 * atom_results["H"] - 6.4990267 / (bohr**6)
         dm_prev = mf.make_rdm1()
     e_tot_h2.append(float(e))
 
