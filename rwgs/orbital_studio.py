@@ -640,7 +640,7 @@ def render_fmo_explanation_html(selected_orb: str = "HOMO") -> str:
     <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:16px 20px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:#1e293b; box-shadow:0 1px 3px rgba(0,0,0,0.04); margin-top:14px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
         <h4 style="margin:0; font-size:15px; color:#0f172a; font-weight:700; display:flex; align-items:center; gap:6px;">
-          📚 Mistä lyhenteet HOMO ja LUMO tulevat? (Rajaorbitaalit / Frontier Molecular Orbitals)
+          📚 HOMO ja orbitaalit (Rajaorbitaalit / Frontier Molecular Orbitals)
         </h4>
         <span style="font-size:11.5px; color:#64748b; background:#f1f5f9; padding:2px 8px; border-radius:12px;">Nobel-palkittu teoria (1981)</span>
       </div>
@@ -649,39 +649,37 @@ def render_fmo_explanation_html(selected_orb: str = "HOMO") -> str:
         <!-- HOMO Kortti -->
         <div style="background:{homo_bg}; border:2px solid {homo_border}; border-radius:8px; padding:12px 15px; transition:all 0.2s ease;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:13.5px; font-weight:700; color:#0284c7;">🔵 HOMO</span>
+            <span style="font-size:13.5px; font-weight:700; color:#0284c7;">🔵 <b>H</b>ighest <b>O</b>ccupied <b>M</b>olecular <b>O</b>rbital<br> HOMO</span>
             {homo_badge}
           </div>
           <div style="font-size:12px; font-weight:600; color:#334155; margin-bottom:6px;">
-            <b>H</b>ighest <b>O</b>ccupied <b>M</b>olecular <b>O</b>rbital<br>
             <span style="color:#64748b; font-weight:400; font-style:italic;">(Korkein miehitetty molekyyliorbitaali)</span>
           </div>
           <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
-            • <b>Fysikaalinen merkitys:</b> Molekyylin korkeimman energian omaava orbitaali, jolla on perustilassa elektroneja. Tämä on molekyylin "uloimpien" valenssielektronien koti.
+            • Molekyylin perustilan miehitetty orbitaali, jolla on korkein energia. Nämä elektronit ovat heikoimmin sitoutuneet molekyyliin.
           </p>
           <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
-            • <b>Rooli kemiallisissa reaktioissa:</b> Koska nämä elektronit ovat heikoimmin sitoutuneita, molekyyli <b>luovuttaa elektroneja</b> juuri HOMOlta (toimii <i>nukleofiilinä</i> tai <i>Lewis-emäksenä</i>).
+            • Koska nämä elektronit ovat heikoimmin sitoutuneet, molekyyli tyypillisesti <b>luovuttaa elektroneja</b> juuri HOMOlta.
           </p>
           <div style="font-size:11.5px; background:rgba(2,132,199,0.08); padding:4px 8px; border-radius:4px; color:#0369a1;">
-            <b>HOMO-1:</b> Toiseksi korkein miehitetty orbitaali (heti HOMOn alapuolella).
+            <b>HOMO-1:</b> Toiseksi korkein miehitetty orbitaali.
           </div>
         </div>
 
         <!-- LUMO Kortti -->
         <div style="background:{lumo_bg}; border:2px solid {lumo_border}; border-radius:8px; padding:12px 15px; transition:all 0.2s ease;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:13.5px; font-weight:700; color:#d97706;">🟠 LUMO</span>
+            <span style="font-size:13.5px; font-weight:700; color:#d97706;">🟠 <b>L</b>owest <b>U</b>noccupied <b>M</b>olecular <b>O</b>rbital<br> LUMO</span>
             {lumo_badge}
           </div>
           <div style="font-size:12px; font-weight:600; color:#334155; margin-bottom:6px;">
-            <b>L</b>owest <b>U</b>noccupied <b>M</b>olecular <b>O</b>rbital<br>
             <span style="color:#64748b; font-weight:400; font-style:italic;">(Matalin miehittämätön / tyhjä molekyyliorbitaali)</span>
           </div>
           <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
-            • <b>Fysikaalinen merkitys:</b> Molekyylin alimman energian omaava tyhjä orbitaali, jolla ei perustilassa ole elektroneja, mutta jolle elektronit voivat sijoittua.
+            • Molekyylin miehittämätön, alimman energian orbitaali. Tällä orbitaalilla ei perustilassa ole elektroneja.
           </p>
           <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
-            • <b>Rooli kemiallisissa reaktioissa:</b> Koska se on energialtaan helpoimmin saavutettavissa oleva vapaa tila, molekyyli <b>ottaa vastaan elektroneja</b> LUMOlle (toimii <i>elektrofiilinä</i> tai <i>Lewis-happona</i>).
+            • Koska LUMO on tyhjistä orbitaaleista energialtaan alin, molekyylin on edullisinta <b>vastaanottaa elektroneja</b> juuri LUMOlle.
           </p>
           <div style="font-size:11.5px; background:rgba(217,119,6,0.08); padding:4px 8px; border-radius:4px; color:#b45309;">
             <b>LUMO+1:</b> Toiseksi matalin tyhjä orbitaali (heti LUMOn yläpuolella).
