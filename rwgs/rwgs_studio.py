@@ -907,9 +907,9 @@ molecules_row = widgets.HBox([reactants_col, products_col])
 balance_section = widgets.VBox([
     widgets.HTML("""
     <div style="background:#2D3748; color:white; padding:10px 16px; border-radius:6px 6px 0 0; margin-top:10px;">
-      <h3 style="margin:0; font-size:16.5px;">⚖️ Hessin lain reaktiotasapaino: CO₂ + H₂ ⇌ CO + H₂O</h3>
+      <h3 style="margin:0; font-size:16.5px;">⚖️ Hessin lain reaktiolämpö: CO₂ + H₂ ⇌ CO + H₂O</h3>
       <p style="margin:2px 0 0 0; font-size:12.5px; opacity:0.85;">
-        Termodynaaminen reaktiotasapaino lasketaan suoraan yllä asetetuista molekyylien sidosenergioista.
+        Termodynaaminen reaktiolämpö voidaan laskea molekyylien sidosenergioista.
       </p>
     </div>
     """),
@@ -934,14 +934,14 @@ header_banner = widgets.HTML("""
   <div style="display:flex; justify-content:space-between; align-items:center;">
     <div>
       <h2 style="margin:0; font-size:21px; font-weight:700;">
-        🧪 Comp-Chem-Lab: Käänteisen vesikaasuntasausreaktion studio (RWGS)
+        🧪 Käänteisen vesikaasureaktion laskennallinen mallintaminen
       </h2>
       <p style="margin:4px 0 0 0; font-size:13px; opacity:0.9;">
-        CO₂ + H₂ ⇌ CO + H₂O &nbsp;|&nbsp; Kvanttikemiallinen laskennallinen malli lukio-opetukseen
+        CO₂ + H₂ ⇌ CO + H₂O &nbsp;|&nbsp; Käänteisen vesikaasureaktio
       </p>
     </div>
     <div style="text-align:right; font-size:11.5px; opacity:0.8; line-height:1.4;">
-      Yhden näkymän studio &bull; Reaaliaikainen Hessin laki<br>
+      Yhden näkymän studio &bull; Hessin laki<br>
       Suora lukuarvojen syöttö &bull; Molekyylien sidosenergiat
     </div>
   </div>
