@@ -639,7 +639,186 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str, lcao_mode: str = 
             svg_lines.append(text(270, 125, "◄ 3D-malli: Lähtö-AO:t (2 × C 2p_z)", anchor="middle", size=12, weight="bold", color=lvl_hi_occ))
 
     # --------------------------------------------------------------------------
-    # 2.5. Atomi (Hiili, C) – Aufbau ja Hundin sääntö
+    # 2.5. H2CO (Formaldehydi) – Karbonyyliryhmän MO-kaavio ja polarisaatio
+    # --------------------------------------------------------------------------
+    elif mol_key == "H2CO":
+        svg_lines.append(text(270, 24, "H₂CO (Formaldehydi) – Karbonyylin MO-kaavio", size=14, weight="bold"))
+        svg_lines.append(text(85, 525, "H₂C-lohko", size=13, weight="bold", color=text_sub))
+        svg_lines.append(text(270, 525, "H₂C=O", size=14, weight="bold"))
+        svg_lines.append(text(455, 525, "Happi (O)", size=13, weight="bold", color=text_sub))
+
+        # Korrelaatioviivat
+        svg_lines.append(corr(115, 360, 240, 460))
+        svg_lines.append(corr(425, 430, 300, 460))
+
+        svg_lines.append(corr(115, 360, 240, 370))
+        svg_lines.append(corr(425, 430, 300, 370))
+
+        svg_lines.append(corr(115, 200, 240, 290))
+        svg_lines.append(corr(425, 210, 300, 290))
+
+        svg_lines.append(corr(115, 150, 240, 220))
+        svg_lines.append(corr(425, 210, 300, 220))
+
+        svg_lines.append(corr(425, 210, 300, 160))
+
+        svg_lines.append(corr(115, 150, 240, 95))
+        svg_lines.append(corr(425, 210, 300, 95))
+
+        svg_lines.append(corr(115, 200, 240, 40))
+        svg_lines.append(corr(425, 210, 300, 40))
+
+        # Vasen: H2C (sp2 + 2pz)
+        svg_lines.append(line(60, 360, 115, 360))
+        svg_lines.append(draw_pair(87.5, 360))
+        svg_lines.append(text(40, 365, "2s / σ", anchor="end", size=12))
+
+        svg_lines.append(line(60, 200, 115, 200))
+        svg_lines.append(draw_single(87.5, 200))
+        svg_lines.append(text(40, 205, "σ(sp²)", anchor="end", size=12))
+
+        svg_lines.append(line(60, 150, 115, 150))
+        svg_lines.append(draw_single(87.5, 150))
+        svg_lines.append(text(40, 155, "2p_z (π)", anchor="end", size=12))
+
+        # Oikea: O (2s, 2p)
+        svg_lines.append(line(425, 430, 480, 430))
+        svg_lines.append(draw_pair(452.5, 430))
+        svg_lines.append(text(500, 435, "2s", anchor="start", size=12))
+
+        for idx, (x1, x2) in enumerate([(395, 420), (430, 455), (465, 490)]):
+            svg_lines.append(line(x1, 210, x2, 210))
+            if idx == 0:
+                svg_lines.append(draw_pair((x1 + x2) / 2.0, 210))
+            else:
+                svg_lines.append(draw_single((x1 + x2) / 2.0, 210))
+        svg_lines.append(text(505, 215, "2p", anchor="start", size=12))
+
+        # Keskellä: MO-tasot
+        svg_lines.append(line(240, 460, 300, 460))
+        svg_lines.append(draw_pair(270, 460))
+        svg_lines.append(text(225, 465, "1a₁ (σ_O)", anchor="end", size=12))
+
+        svg_lines.append(line(240, 370, 300, 370))
+        svg_lines.append(draw_pair(270, 370))
+        svg_lines.append(text(225, 375, "2a₁ (σ_CH)", anchor="end", size=12))
+
+        svg_lines.append(line(240, 290, 300, 290))
+        svg_lines.append(draw_pair(270, 290))
+        svg_lines.append(text(225, 295, "1b₂ (σ_CO)", anchor="end", size=12))
+
+        # HOMO-1: π(C=O) (1b1)
+        is_hm1 = (selected_orb_key == "HOMO-1")
+        c_hm1 = lvl_hi_occ if is_hm1 else lvl_norm
+        svg_lines.append(line(240, 220, 300, 220, color=c_hm1, width=4.5 if is_hm1 else 2.5))
+        svg_lines.append(draw_pair(270, 220))
+        svg_lines.append(text(225, 225, "1b₁ (HOMO-1, π_CO)", anchor="end", size=12, color=c_hm1))
+        if is_hm1:
+            svg_lines.append(text(315, 225, "◄ 3D-malli (C=O π-sidos)", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+
+        # HOMO: n_O (2b2) hapen vapaa pari
+        is_homo = (selected_orb_key == "HOMO")
+        c_h = lvl_hi_occ if is_homo else lvl_norm
+        svg_lines.append(line(240, 160, 300, 160, color=c_h, width=4.5 if is_homo else 2.5))
+        svg_lines.append(draw_pair(270, 160))
+        svg_lines.append(text(225, 165, "2b₂ (HOMO, n_O)", anchor="end", size=12, color=c_h))
+        if is_homo:
+            svg_lines.append(text(315, 165, "◄ 3D-malli (hapen vapaa pari)", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+
+        # LUMO: π*(C=O) (2b1*)
+        is_lumo = (selected_orb_key == "LUMO")
+        c_l = lvl_hi_virt if is_lumo else lvl_norm
+        svg_lines.append(line(240, 95, 300, 95, color=c_l, width=4.5 if is_lumo else 2.5))
+        svg_lines.append(text(225, 100, "2b₁* (LUMO, π*)", anchor="end", size=12, color=c_l))
+        if is_lumo:
+            svg_lines.append(text(315, 100, "◄ 3D-malli (reaktiokeskus)", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+
+        # LUMO+1: σ* (3a1*)
+        is_lp1 = (selected_orb_key == "LUMO+1")
+        c_lp1 = lvl_hi_virt if is_lp1 else lvl_norm
+        svg_lines.append(line(240, 40, 300, 40, color=c_lp1, width=4.5 if is_lp1 else 2.5))
+        svg_lines.append(text(225, 45, "3a₁* (LUMO+1, σ*)", anchor="end", size=12, color=c_lp1))
+        if is_lp1:
+            svg_lines.append(text(315, 45, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+
+    # --------------------------------------------------------------------------
+    # 2.6. Bentseeni (C6H6) – Aromaattinen 6π-systeemi (Hückel / Frost-ympyrä)
+    # --------------------------------------------------------------------------
+    elif mol_key == "Benzene":
+        svg_lines.append(text(270, 24, "Bentseeni (C₆H₆) – Aromaattinen π-molekyyliorbitaalikaavio", size=14, weight="bold"))
+        svg_lines.append(text(270, 42, "Hückel-sääntö: 4n + 2 = 6 π-elektronia (n = 1, suljettu kuori)", size=12, color=text_sub))
+
+        # 6 × C 2p_z lähtötaso katkoviivalla y = 220
+        svg_lines.append(line(70, 220, 130, 220, color="#64748b", width=1.5, dash="3,3"))
+        svg_lines.append(line(410, 220, 470, 220, color="#64748b", width=1.5, dash="3,3"))
+        svg_lines.append(text(100, 240, "3 × C(2p_z)", anchor="middle", size=11, color=text_sub))
+        svg_lines.append(text(440, 240, "3 × C(2p_z)", anchor="middle", size=11, color=text_sub))
+
+        # Korrelaatiot Frost-syklille
+        svg_lines.append(corr(100, 220, 240, 390))
+        svg_lines.append(corr(440, 220, 300, 390))
+        svg_lines.append(corr(100, 220, 225, 235))
+        svg_lines.append(corr(440, 220, 315, 235))
+        svg_lines.append(corr(100, 220, 225, 115))
+        svg_lines.append(corr(440, 220, 315, 115))
+        svg_lines.append(corr(100, 220, 240, 55))
+        svg_lines.append(corr(440, 220, 300, 55))
+
+        # π1 (a2u): Alin sitova orbitaali (kaikki lohkot samassa vaiheessa renkaan yläpuolella)
+        svg_lines.append(line(240, 390, 300, 390, color=lvl_norm, width=2.5))
+        svg_lines.append(draw_pair(270, 390))
+        svg_lines.append(text(225, 395, "π₁ (a₂ᵤ, sitova)", anchor="end", size=12))
+
+        # π2 & π3 (e1g): Degeneroitunut HOMO-kaksikko (y = 235, -9.17 eV)
+        is_hm1 = (selected_orb_key == "HOMO-1")
+        is_homo = (selected_orb_key == "HOMO")
+        c_hm1 = lvl_hi_occ if is_hm1 else lvl_norm
+        c_h = lvl_hi_occ if is_homo else lvl_norm
+
+        svg_lines.append(line(195, 235, 255, 235, color=c_hm1, width=4.5 if is_hm1 else 2.5))
+        svg_lines.append(draw_pair(225, 235))
+        svg_lines.append(text(225, 258, "π₂ (HOMO-1)", anchor="middle", size=11, weight="bold" if is_hm1 else "normal", color=c_hm1))
+
+        svg_lines.append(line(285, 235, 345, 235, color=c_h, width=4.5 if is_homo else 2.5))
+        svg_lines.append(draw_pair(315, 235))
+        svg_lines.append(text(315, 258, "π₃ (HOMO)", anchor="middle", size=11, weight="bold" if is_homo else "normal", color=c_h))
+
+        svg_lines.append(text(180, 239, "e₁_g (HOMO pari)", anchor="end", size=12, weight="bold" if (is_hm1 or is_homo) else "normal"))
+
+        if is_hm1:
+            svg_lines.append(text(360, 239, "◄ 3D: π₂ (solmutaso C-C)", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+        elif is_homo:
+            svg_lines.append(text(360, 239, "◄ 3D: π₃ (solmutaso atomien läpi)", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+
+        # π4* & π5* (e2u): Degeneroitunut LUMO-kaksikko (y = 115, +3.62 eV)
+        is_lumo = (selected_orb_key == "LUMO")
+        is_lp1 = (selected_orb_key == "LUMO+1")
+        c_l = lvl_hi_virt if is_lumo else lvl_norm
+        c_lp1 = lvl_hi_virt if is_lp1 else lvl_norm
+
+        svg_lines.append(line(195, 115, 255, 115, color=c_l, width=4.5 if is_lumo else 2.5))
+        svg_lines.append(text(225, 96, "π₄* (LUMO)", anchor="middle", size=11, weight="bold" if is_lumo else "normal", color=c_l))
+
+        svg_lines.append(line(285, 115, 345, 115, color=c_lp1, width=4.5 if is_lp1 else 2.5))
+        svg_lines.append(text(315, 96, "π₅* (LUMO+1)", anchor="middle", size=11, weight="bold" if is_lp1 else "normal", color=c_lp1))
+
+        svg_lines.append(text(180, 119, "e₂_u (LUMO pari)", anchor="end", size=12, weight="bold" if (is_lumo or is_lp1) else "normal"))
+
+        if is_lumo:
+            svg_lines.append(text(360, 119, "◄ 3D: π₄* (4 solmulohkoa)", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+        elif is_lp1:
+            svg_lines.append(text(360, 119, "◄ 3D: π₅* (vastin-LUMO)", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+
+        # π6* (b2g): Ylin hajottava orbitaali (kaikki vierekkäiset lohkot vastakkaisissa vaiheissa)
+        svg_lines.append(line(240, 55, 300, 55, color=lvl_norm, width=2.5))
+        svg_lines.append(text(225, 59, "π₆* (b₂g, hajottava)", anchor="end", size=12))
+
+        # Alateksti
+        svg_lines.append(text(270, 480, "Frost–Musulin ympyrämalli: 1 alin sitova + 2 degeneroitunutta sitovaa (6 e⁻)", size=11.5, color=text_sub))
+        svg_lines.append(text(270, 500, "Täydellisesti suljettu kuori takaa bentseenin aromaattisen vakauden!", size=11.5, color=text_sub))
+
+    # --------------------------------------------------------------------------
+    # 2.7. Atomi (Hiili, C) – Aufbau ja Hundin sääntö
     # --------------------------------------------------------------------------
     elif mol_key == "Atom":
         svg_lines.append(text(270, 22, "Hiiliatomi (C) – Atomiorbitaalien energiatasot", size=14, weight="bold"))
@@ -899,7 +1078,7 @@ def render_fmo_explanation_html(
     </div>
     """
 
-    # Molekyylit (CO, H2O, CO2, C2H4)
+    # Molekyylit (CO, H2O, CO2, C2H4, H2CO, Benzene)
     is_homo = (selected_orb == "HOMO")
     is_homo_m1 = (selected_orb == "HOMO-1")
     is_lumo = (selected_orb == "LUMO")
@@ -913,13 +1092,30 @@ def render_fmo_explanation_html(
     lumo_bg = "#fffbeb" if (is_lumo or is_lumo_p1) else "#ffffff"
     lumo_badge = " <span style='background:#d97706; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>VALITTUNA</span>" if is_lumo else (" <span style='background:#d97706; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>LUMO+1 VALITTUNA</span>" if is_lumo_p1 else "")
 
-    lcao_banner = ""
+    mol_banner = ""
     if selected_mol == "C2H4" and lcao_mode == "AO":
-        lcao_banner = """
+        mol_banner = """
       <div style="background:#eff6ff; border:1px solid #3b82f6; border-radius:6px; padding:10px 14px; margin-bottom:12px; font-size:12.5px; color:#1e40af;">
         <b>🔬 LCAO-tila aktiivinen (Linear Combination of Atomic Orbitals):</b><br>
         Tarkastelet nyt kahden hiiliatomin erillisiä <b>2p_z-atomiorbitaaleja</b> ennen sidoksen muodostumista. 
         Klikkaa ylhäältä <b>"Muodostunut MO"</b> nähdäksesi, miten nämä atomiorbitaalit interferoivat keskenään muodostaen joko sitovan <b>π-kaksoissidoksen (HOMO)</b> tai hajottavan <b>π*-orbitaalin (LUMO)</b> ilman että 3D-kamera kääntyy!
+      </div>
+        """
+    elif selected_mol == "H2CO":
+        mol_banner = """
+      <div style="background:#f0fdf4; border:1px solid #22c55e; border-radius:6px; padding:10px 14px; margin-bottom:12px; font-size:12.5px; color:#15803d;">
+        <b>🎯 Formaldehydin (H₂C=O) rajaorbitaalit ja karbonyylin reaktiivisuus:</b><br>
+        • <b>HOMO (2b₂):</b> Hapen ei-sitova vapaa elektronipari (n_O). Toimii elektronitiheänä emäksisenä keskuksena (esim. protonoituu happamissa reaktioissa).<br>
+        • <b>LUMO (2b₁*):</b> C=O kaksoissidoksen hajottava π*-orbitaali. Elektronegatiivisuuseron vuoksi <b>LUMO:n aaltofunktio on polarisoitunut voimakkaasti hiilelle</b> (hiilen lohko on paljon happea suurempi!). Siksi nukleofiilit (kuten CN⁻, hydridit tai Grignard-reagenssit) hyökkäävät nimenomaan karbonyylihiileen! <i>(Katso havainnollistus 4. välilehdellä!)</i>
+      </div>
+        """
+    elif selected_mol == "Benzene":
+        mol_banner = """
+      <div style="background:#faf5ff; border:1px solid #a855f7; border-radius:6px; padding:10px 14px; margin-bottom:12px; font-size:12.5px; color:#6b21a8;">
+        <b>⬡ Bentseenin aromaattinen sekstetti ja Hückelin sääntö (4n + 2):</b><br>
+        • <b>Degeneroitunut HOMO-pari (π₂ ja π₃, -9.17 eV):</b> Bentseenillä on kaksi täsmälleen samanenergistä HOMO-orbitaalia. Valitse <b>HOMO</b> tai <b>HOMO-1</b> nähdäksesi niiden toisiaan vastaan kohtisuorassa olevat solmutasot (toisella solmutaso kulkee kahden vastakkaisen hiilen läpi, toisella C-C-sidosten välistä)!<br>
+        • <b>Degeneroitunut LUMO-pari (π₄* ja π₅*, +3.62 eV):</b> Kaksi tyhjää hajottavaa π*-orbitaalia, joissa on neljä erivaiheista lohkoa.<br>
+        • <b>Aromaattinen vakaus:</b> Koska kaikki kolme sitovaa π-orbitaalia ovat täysin miehitettyjä (suljettu kuori) ja HOMO-LUMO-energiaväli on erittäin suuri (~12.8 eV), bentseeni on poikkeuksellisen stabiili eikä reagoi herkästi additiolla, vaan suosii elektrofiilistä aromaattista substituutiota (EAS)!
       </div>
         """
 
@@ -932,7 +1128,7 @@ def render_fmo_explanation_html(
         <span style="font-size:11.5px; color:#64748b; background:#f1f5f9; padding:2px 8px; border-radius:12px;">Nobel-palkittu teoria (1981)</span>
       </div>
 
-      {lcao_banner}
+      {mol_banner}
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
         <!-- HOMO Kortti -->
@@ -1021,27 +1217,37 @@ def create_orbital_studio() -> widgets.VBox:
         "CO": widgets.Button(
             description="CO",
             button_style="primary" if state["mol"] == "CO" else "",
-            layout=widgets.Layout(width="80px", height="34px")
+            layout=widgets.Layout(width="65px", height="34px")
         ),
         "H2O": widgets.Button(
             description="H₂O",
             button_style="primary" if state["mol"] == "H2O" else "",
-            layout=widgets.Layout(width="80px", height="34px")
+            layout=widgets.Layout(width="65px", height="34px")
         ),
         "CO2": widgets.Button(
             description="CO₂",
             button_style="primary" if state["mol"] == "CO2" else "",
-            layout=widgets.Layout(width="80px", height="34px")
+            layout=widgets.Layout(width="65px", height="34px")
         ),
         "C2H4": widgets.Button(
             description="C₂H₄",
             button_style="primary" if state["mol"] == "C2H4" else "",
-            layout=widgets.Layout(width="80px", height="34px")
+            layout=widgets.Layout(width="65px", height="34px")
+        ),
+        "H2CO": widgets.Button(
+            description="H₂CO",
+            button_style="primary" if state["mol"] == "H2CO" else "",
+            layout=widgets.Layout(width="70px", height="34px")
+        ),
+        "Benzene": widgets.Button(
+            description="Bentseeni",
+            button_style="primary" if state["mol"] == "Benzene" else "",
+            layout=widgets.Layout(width="95px", height="34px")
         ),
         "Atom": widgets.Button(
             description="Atomi (AO)",
             button_style="primary" if state["mol"] == "Atom" else "",
-            layout=widgets.Layout(width="100px", height="34px")
+            layout=widgets.Layout(width="95px", height="34px")
         ),
     }
 
@@ -1243,6 +1449,8 @@ def create_orbital_studio() -> widgets.VBox:
     mol_btns["H2O"].on_click(lambda _: on_mol_button_clicked("H2O"))
     mol_btns["CO2"].on_click(lambda _: on_mol_button_clicked("CO2"))
     mol_btns["C2H4"].on_click(lambda _: on_mol_button_clicked("C2H4"))
+    mol_btns["H2CO"].on_click(lambda _: on_mol_button_clicked("H2CO"))
+    mol_btns["Benzene"].on_click(lambda _: on_mol_button_clicked("Benzene"))
     mol_btns["Atom"].on_click(lambda _: on_mol_button_clicked("Atom"))
 
     orb_btns["HOMO-1"].on_click(lambda _: on_orb_button_clicked("HOMO-1"))
@@ -1269,8 +1477,10 @@ def create_orbital_studio() -> widgets.VBox:
         mol_btns["H2O"],
         mol_btns["CO2"],
         mol_btns["C2H4"],
+        mol_btns["H2CO"],
+        mol_btns["Benzene"],
         mol_btns["Atom"],
-    ], layout=widgets.Layout(align_items="center", margin="0 0 8px 0", gap="8px"))
+    ], layout=widgets.Layout(align_items="center", margin="0 0 8px 0", gap="6px"))
 
     orb_row = widgets.HBox([
         widgets.HTML("<b style='color:#334155; font-size:13px; margin-right:8px;'>Molekyyliorbitaali:</b>"),

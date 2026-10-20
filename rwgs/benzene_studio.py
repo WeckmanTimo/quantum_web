@@ -2,8 +2,7 @@
 Comp-Chem-Lab: Bentseenirenkaan ja Hiiliketjun Studio (Propyylibentseeni)
 ========================================================================
 Interaktiivinen työkalu bentseenirenkaan ja siihen kiinnittyneen alkyyliketjun
-(propyylibentseeni, C6H5-C3H7, 21 atomia) 3D-hiiriohjaukseen, konformaatio-
-analyysiin ja energiaoptimointiin.
+(propyylibentseeni, C6H5-C3H7, 21 atomia) 3D-hiiriohjaukseen ja energiaoptimointiin (L-BFGS).
 """
 from __future__ import annotations
 import json
@@ -134,36 +133,7 @@ def create_benzene_studio() -> widgets.VBox:
         disabled=True
     )
 
-    # Renkaan ja ketjun torsioprofiilin kuvaaja (0 - 180 astetta)
-    phi_grid = np.linspace(0.0, 180.0, 91)
-    phi_rad = np.radians(phi_grid)
-    v2_r = bff.V2_RING
-    e_tors_profile = 0.5 * v2_r * (1.0 + np.cos(2.0 * phi_rad))
-
-    fig_tors = go.FigureWidget(
-        data=[
-            go.Scatter(
-                x=phi_grid, y=e_tors_profile, mode="lines",
-                name="Torsiopotentiaali",
-                line=dict(color="#4A5568", width=2)
-            ),
-            go.Scatter(
-                x=[90.0], y=[0.0], mode="markers",
-                name="Nykyinen konformaatio",
-                marker=dict(size=14, color="#DD6B20", symbol="diamond", line=dict(color="black", width=1.5))
-            )
-        ]
-    )
-    fig_tors.update_layout(
-        title=dict(text="Renkaan ja alkyyliketjun kiertopotentiaali φ(C-C-C-C)", font=dict(size=12.5)),
-        xaxis=dict(title="Kiertokulma φ_rengas [°] (90° = kohtisuora)", tickvals=[0, 30, 60, 90, 120, 150, 180]),
-        yaxis=dict(title="Torsioenergia [kJ/mol]"),
-        width=520, height=220,
-        margin=dict(l=55, r=20, t=35, b=35),
-        showlegend=False
-    )
-
-    # Suppenemiskuvaaja
+    # Suppenemiskuvaaja (L-BFGS minimointi)
     fig_conv = go.FigureWidget(
         data=[
             go.Scatter(
@@ -180,10 +150,10 @@ def create_benzene_studio() -> widgets.VBox:
         ]
     )
     fig_conv.update_layout(
-        title=dict(text="Geometrian minimoinnin eteneminen (L-BFGS)", font=dict(size=12.5)),
+        title=dict(text="Geometrian minimoinnin eteneminen (L-BFGS)", font=dict(size=13.0)),
         xaxis=dict(title="Iteraatioaskel", dtick=5),
         yaxis=dict(title="Voimakenttäenergia E_MM [kJ/mol]"),
-        width=520, height=200,
+        width=520, height=350,
         margin=dict(l=55, r=20, t=35, b=35),
         showlegend=False
     )
@@ -246,11 +216,6 @@ def create_benzene_studio() -> widgets.VBox:
             })
 
         energy_box.value = render_energy_cards(res)
-
-        phi_r = abs(res["phi_ring"]) % 180.0
-        with fig_tors.batch_update():
-            fig_tors.data[1].x = [phi_r]
-            fig_tors.data[1].y = [0.5 * v2_r * (1.0 + np.cos(2.0 * np.radians(phi_r)))]
 
         with fig_conv.batch_update():
             fig_conv.data[0].x = [0]
@@ -331,11 +296,6 @@ def create_benzene_studio() -> widgets.VBox:
                         fig_conv.data[0].y = energies_so_far
                         fig_conv.data[1].x = [t["step"]]
                         fig_conv.data[1].y = [t["energy"]]
-
-                    phi_r = abs(t["phi_ring"]) % 180.0
-                    with fig_tors.batch_update():
-                        fig_tors.data[1].x = [phi_r]
-                        fig_tors.data[1].y = [0.5 * v2_r * (1.0 + np.cos(2.0 * np.radians(phi_r)))]
 
                     res = bff.calc_energy_and_components(t["coords"])
                     energy_box.value = render_energy_cards(res)
@@ -430,10 +390,6 @@ def create_benzene_studio() -> widgets.VBox:
             with fig_conv.batch_update():
                 fig_conv.data[1].x = [t["step"]]
                 fig_conv.data[1].y = [t["energy"]]
-            phi_r = abs(t["phi_ring"]) % 180.0
-            with fig_tors.batch_update():
-                fig_tors.data[1].x = [phi_r]
-                fig_tors.data[1].y = [0.5 * v2_r * (1.0 + np.cos(2.0 * np.radians(phi_r)))]
 
     btn_optimize.on_click(on_optimize_clicked)
     btn_perp_anti.on_click(on_perp_anti_clicked)
@@ -466,10 +422,9 @@ def create_benzene_studio() -> widgets.VBox:
         energy_box
     ], layout=widgets.Layout(width="560px", padding="12px", border="1px solid #CBD5E0", border_radius="8px", background="#FFFFFF"))
 
-    # Oikea sarake: Energiaprofiili ja optimointi
+    # Oikea sarake: Geometrian minimointi
     right_col = widgets.VBox([
-        widgets.HTML("<h3 style='margin:0 0 6px 0; font-size:15px; color:#2D3748;'>2. Konformaatioanalyysi ja minimointi</h3>"),
-        fig_tors,
+        widgets.HTML("<h3 style='margin:0 0 6px 0; font-size:15px; color:#2D3748;'>2. Geometrian minimointi (L-BFGS)</h3>"),
         fig_conv,
         widgets.VBox([
             traj_slider,
@@ -491,7 +446,7 @@ def create_benzene_studio() -> widgets.VBox:
         </div>
         <div style="text-align:right; font-size:11px; opacity:0.8; line-height:1.4;">
           Interaktiivinen 3D-fysiikkamalli<br>
-          Renkaan ja ketjun välinen torsio
+          L-BFGS energiaminimointi
         </div>
       </div>
     </div>

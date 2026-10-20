@@ -39,15 +39,77 @@ main_tabs = widgets.Tab(children=[
     orbital_studio.create_orbital_studio(),
     nucleophilic_addition_studio.create_nucleophilic_addition_studio()
 ])
+main_tabs.add_class("main-nav-tabs")
 
 main_tabs.set_title(0, "🧪 RWGS-reaktio")
 main_tabs.set_title(1, "⚙️ Molekyylimekaniikka (MM)")
 main_tabs.set_title(2, "⚛️ Molekyyliorbitaalit (HOMO / LUMO 3D)")
 main_tabs.set_title(3, "🎯 Nukleofiili-additio")
 
+nav_style = widgets.HTML("""
+<style>
+  /* Päävalikon välilehtien koon ja fontin tuplaus (+100% fonttikoko) */
+  .main-nav-tabs > .lm-TabBar,
+  .main-nav-tabs > .p-TabBar,
+  .main-nav-tabs .widget-tab-bar,
+  .main-nav-tabs > ul.nav-tabs {
+    flex-wrap: wrap !important;
+    height: auto !important;
+    min-height: 60px !important;
+    border-bottom: 3px solid #cbd5e1 !important;
+    margin-bottom: 8px !important;
+  }
+
+  .main-nav-tabs > .lm-TabBar .lm-TabBar-tab,
+  .main-nav-tabs > .p-TabBar .p-TabBar-tab,
+  .main-nav-tabs .widget-tab-bar .lm-TabBar-tab,
+  .main-nav-tabs .widget-tab-bar .p-TabBar-tab,
+  .main-nav-tabs > ul.nav-tabs > li,
+  .main-nav-tabs > ul.nav-tabs > li > a {
+    min-height: 58px !important;
+    height: auto !important;
+    padding: 14px 28px !important;
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 8px 8px 0 0 !important;
+    transition: all 0.15s ease-in-out !important;
+    letter-spacing: -0.01em !important;
+  }
+
+  .main-nav-tabs .lm-TabBar-tabLabel,
+  .main-nav-tabs .p-TabBar-tabLabel,
+  .main-nav-tabs > ul.nav-tabs > li > a {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Aktiivisen välilehden erottuva teema */
+  .main-nav-tabs > .lm-TabBar .lm-TabBar-tab.lm-mod-current,
+  .main-nav-tabs > .p-TabBar .p-TabBar-tab.p-mod-current,
+  .main-nav-tabs > ul.nav-tabs > li.active > a {
+    border-bottom: 4px solid #2563eb !important;
+    color: #1d4ed8 !important;
+    background-color: #eff6ff !important;
+  }
+
+  .main-nav-tabs > .lm-TabBar .lm-TabBar-tab:hover,
+  .main-nav-tabs > .p-TabBar .p-TabBar-tab:hover,
+  .main-nav-tabs > ul.nav-tabs > li > a:hover {
+    background-color: #f8fafc !important;
+  }
+</style>
+""")
+
 app_container = widgets.VBox([
+    nav_style,
     main_tabs
 ], layout=widgets.Layout(width="100%", max_width="1320px", margin="0 auto"))
 
 if __name__ == "__main__":
     display(app_container)
+
