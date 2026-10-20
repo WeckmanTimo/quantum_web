@@ -7,6 +7,7 @@ hyökkäyksen karbonyylin (formaldehydi, H₂CO) LUMO-orbitaalille.
 Reaktio: H₂C=O + CN⁻ ➔ NC–CH₂–O⁻ (Syanohydriinin muodostuminen, uusi C-C sidos)
 
 Tilat:
+0. Pelkkä atomirakenne (H₂CO + CN⁻ hyökkäysasennossa ilman orbitaalipintoja)
 1. Karbonyyli (H₂CO) LUMO (π*)
 2. Nukleofiili (CN⁻) HOMO (hiilen sp-vapaa elektronipari)
 3. Hyökkäys: Erilliset orbitaalit (Bürgi-Dunitz -asento, nukleofiili eri sävyllä!)
@@ -39,6 +40,27 @@ CUBE_FILES = {
 }
 
 EXPLANATIONS: Dict[str, Dict[str, str]] = {
+    "structure": {
+        "title": "Atomirakenne – Formaldehydi ja syanidi-ioni (H₂C=O + CN⁻)",
+        "tag": "Pelkkä molekyyligeometria",
+        "tag_color": "#475569",
+        "html": """
+        <p style="margin-top:0; color:#1e293b; line-height:1.55; font-size:13px;">
+          Reaktion molekyylirakenne ja atomigeometria ilman orbitaalipintoja:
+          elektrofiilinen <b>formaldehydi (H₂C=O)</b> ja lähestyvä nukleofiilinen <b>syanidi-ioni (C≡N⁻)</b>.
+        </p>
+        <div style="background:#f8fafc; border-left:3px solid #475569; padding:8px 12px; margin:10px 0; font-size:12.5px; color:#334155; line-height:1.5;">
+          <b>Bürgi–Dunitz -lähestymiskulma ja -geometria:</b><br>
+          • Syanidi-ionin hiiliatomi lähestyy karbonyylihiiltä <b>~107° kulmassa</b> suhteessa C=O-sidokseen.<br>
+          • Lähestymisetäisyys reaktion alkutilassa on <b>2.05 Å</b> (ennen uuden kovalenttisen C–C-sidoksen muodostumista).<br>
+          • Formaldehydin hiiliatomi on vielä tasomainen (sp²-hybridisaatio), mutta siirtyy reaktion edetessä kohti tetraedristä sp³-rakennetta.
+        </div>
+        <p style="color:#475569; font-size:12.5px; line-height:1.5;">
+          • <b>Atomivärit (CPK)</b>: ⚪ Vety (H), ⚫ Hiili (C), 🔴 Happi (O), 🔵 Typpi (N).<br>
+          • <i>Kierrä molekyyliparia hiirellä ja tarkastele lähestymiskulmaa ja atomien sijoittumista avaruudessa mistä tahansa kulmasta!</i>
+        </p>
+        """
+    },
     "carbonyl": {
         "title": "1. Karbonyyli (H₂CO) – LUMO (π*)",
         "tag": "Elektrofiili",
@@ -230,7 +252,16 @@ def render_addition_3d_iframe(initial_mode: str = "unmixed", height: int = 540) 
 
       clearOrbitalSurfaces();
 
-      if (modeKey === "carbonyl") {{
+      if (modeKey === "structure") {{
+        // Pelkkä atomirakenne: molempien molekyylien atomit hyökkäysasennossa ilman orbitaaleja
+        const cBase = CUBES["carb_comp"];
+        if (cBase) {{
+          viewer.removeAllModels();
+          viewer.addModel(cBase, "cube");
+          setAtomStyles();
+        }}
+      }}
+      else if (modeKey === "carbonyl") {{
         // Vain formaldehydi yksin
         const cData = CUBES["carb_only"];
         if (cData) {{
@@ -392,7 +423,7 @@ def render_addition_3d_iframe(initial_mode: str = "unmixed", height: int = 540) 
     }}
 
     function setMode(newMode) {{
-      if (newMode === currentMode && orbitalShapes.length > 0) return;
+      if (newMode === currentMode && (orbitalShapes.length > 0 || currentMode === "structure")) return;
       loadState(newMode, false);
     }}
 
@@ -464,30 +495,35 @@ def create_nucleophilic_addition_studio() -> widgets.VBox:
 
     # Painikkeet
     buttons = {
+        "structure": widgets.Button(
+            description="Pelkkä atomirakenne",
+            button_style="primary" if state["mode"] == "structure" else "",
+            layout=widgets.Layout(width="165px", height="36px")
+        ),
         "carbonyl": widgets.Button(
             description="Karbonyyli (H₂CO LUMO)",
             button_style="" if state["mode"] != "carbonyl" else "primary",
-            layout=widgets.Layout(width="180px", height="36px")
+            layout=widgets.Layout(width="175px", height="36px")
         ),
         "nucleophile": widgets.Button(
             description="Nukleofiili (CN⁻ HOMO)",
             button_style="" if state["mode"] != "nucleophile" else "success",
-            layout=widgets.Layout(width="170px", height="36px")
+            layout=widgets.Layout(width="165px", height="36px")
         ),
         "unmixed": widgets.Button(
             description="Hyökkäys: Erilliset orbitaalit",
             button_style="warning" if state["mode"] == "unmixed" else "",
-            layout=widgets.Layout(width="210px", height="36px")
+            layout=widgets.Layout(width="195px", height="36px")
         ),
         "bonding": widgets.Button(
             description="Hyökkäys: Muodostunut σ-sidos",
             button_style="info" if state["mode"] == "bonding" else "",
-            layout=widgets.Layout(width="220px", height="36px")
+            layout=widgets.Layout(width="200px", height="36px")
         ),
         "antibonding": widgets.Button(
             description="Hajoittava σ*",
             button_style="danger" if state["mode"] == "antibonding" else "",
-            layout=widgets.Layout(width="125px", height="36px")
+            layout=widgets.Layout(width="120px", height="36px")
         ),
     }
 
@@ -498,7 +534,9 @@ def create_nucleophilic_addition_studio() -> widgets.VBox:
 
         for k, btn in buttons.items():
             if k == m_key:
-                if k == "carbonyl":
+                if k == "structure":
+                    btn.button_style = "primary"
+                elif k == "carbonyl":
                     btn.button_style = "primary"
                 elif k == "nucleophile":
                     btn.button_style = "success"
@@ -534,12 +572,13 @@ def create_nucleophilic_addition_studio() -> widgets.VBox:
     """)
 
     btn_row = widgets.HBox([
+        buttons["structure"],
         buttons["carbonyl"],
         buttons["nucleophile"],
         buttons["unmixed"],
         buttons["bonding"],
         buttons["antibonding"],
-    ], layout=widgets.Layout(align_items="center", gap="8px", margin="0 0 12px 0"))
+    ], layout=widgets.Layout(align_items="center", gap="8px", margin="0 0 12px 0", flex_wrap="wrap"))
 
     control_card = widgets.VBox([
         btn_row
