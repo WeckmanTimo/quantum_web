@@ -639,7 +639,7 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str, lcao_mode: str = 
             svg_lines.append(text(270, 125, "◄ 3D-malli: Lähtö-AO:t (2 × C 2p_z)", anchor="middle", size=12, weight="bold", color=lvl_hi_occ))
 
     # --------------------------------------------------------------------------
-    # 2.5. Atomi (Hiili, C) – Aufbau, Hundin sääntö ja kvanttiluvut
+    # 2.5. Atomi (Hiili, C) – Aufbau ja Hundin sääntö
     # --------------------------------------------------------------------------
     elif mol_key == "Atom":
         svg_lines.append(text(270, 22, "Hiiliatomi (C) – Atomiorbitaalien energiatasot", size=14, weight="bold"))
@@ -649,9 +649,6 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str, lcao_mode: str = 
         svg_lines.append(line(50, 485, 50, 65, color="#64748b", width=2.0))
         svg_lines.append('<polygon points="50,55 45,69 55,69" fill="#64748b"/>')
         svg_lines.append(text(40, 60, "E", anchor="end", size=13, weight="bold", color="#64748b"))
-
-        # Kvanttilukutaulukko / selitteet oikeassa laidassa
-        svg_lines.append(text(435, 65, "Kvanttiluvut (n, l, m):", anchor="middle", size=12, weight="bold", color=text_sub))
 
         # ----------------------------------------------------------------------
         # 3d degeneroidut tasot (y = 105): 3d_xy, 3d_yz, 3d_z², 3d_xz, 3d_x²-y²
@@ -695,7 +692,6 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str, lcao_mode: str = 
         svg_lines.append(text(342, 124, "3d_x²-y²", anchor="middle", size=11, weight="bold", color=col_3dx2y2))
 
         svg_lines.append(text(85, 109, "3d", anchor="end", size=13, weight="bold", color=text_main))
-        svg_lines.append(text(435, 109, "n=3, l=2 (2 kulmasolmutasoa)", anchor="middle", size=11, color=text_sub))
 
         if is_3dxy:
             svg_lines.append(text(122, 88, "◄ 3D", anchor="middle", size=11, weight="bold", color=lvl_hi_virt))
@@ -738,7 +734,6 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str, lcao_mode: str = 
         svg_lines.append(text(325, 226, "2p_z", anchor="middle", size=12, weight="bold", color=col_2pz))
 
         svg_lines.append(text(110, 209, "2p", anchor="end", size=13, weight="bold", color=text_main))
-        svg_lines.append(text(435, 209, "n=2, l=1 (1 kulmasolmutaso)", anchor="middle", size=11, color=text_sub))
 
         if is_2px:
             svg_lines.append(text(155, 185, "◄ 3D", anchor="middle", size=11, weight="bold", color=lvl_hi_occ))
@@ -756,7 +751,6 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str, lcao_mode: str = 
         dash_sp3 = "" if is_sp3 else "4,3"
         svg_lines.append(line(160, 265, 320, 265, color=col_sp3, width=w_sp3, dash=dash_sp3))
         svg_lines.append(text(145, 269, "sp³", anchor="end", size=12, weight="bold", color=col_sp3))
-        svg_lines.append(text(435, 269, "1×2s + 3×2p hybridisaatio", anchor="middle", size=11, color=col_sp3))
         if is_sp3:
             svg_lines.append(text(335, 269, "◄ 3D (tetraedri)", anchor="start", size=12, weight="bold", color="#8b5cf6"))
 
@@ -769,7 +763,6 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str, lcao_mode: str = 
         svg_lines.append(line(170, 340, 310, 340, color=col_2s, width=w_2s))
         svg_lines.append(draw_pair(240, 340))
         svg_lines.append(text(150, 344, "2s", anchor="end", size=13, weight="bold", color=col_2s))
-        svg_lines.append(text(435, 344, "n=2, l=0 (1 radiaalinen solmu)", anchor="middle", size=11, color=text_sub))
         if is_2s:
             svg_lines.append(text(325, 344, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
 
@@ -782,7 +775,6 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str, lcao_mode: str = 
         svg_lines.append(line(170, 445, 310, 445, color=col_1s, width=w_1s))
         svg_lines.append(draw_pair(240, 445))
         svg_lines.append(text(150, 449, "1s", anchor="end", size=13, weight="bold", color=col_1s))
-        svg_lines.append(text(435, 449, "n=1, l=0 (ei solmuja)", anchor="middle", size=11, color=text_sub))
         if is_1s:
             svg_lines.append(text(325, 449, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
 
