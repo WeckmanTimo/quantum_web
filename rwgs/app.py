@@ -40,10 +40,10 @@ main_tabs = widgets.Tab(children=[
     nucleophilic_addition_studio.create_nucleophilic_addition_studio()
 ])
 
-main_tabs.set_title(0, "🧪 RWGS-reaktiostudio (Kvanttikemia)")
-main_tabs.set_title(1, "⚙️ Voimakenttä & Molekyylimekaniikka (MM)")
+main_tabs.set_title(0, "🧪 RWGS-reaktio")
+main_tabs.set_title(1, "⚙️ Molekyylimekaniikka (MM)")
 main_tabs.set_title(2, "⚛️ Molekyyliorbitaalit (HOMO / LUMO 3D)")
-main_tabs.set_title(3, "🎯 Nukleofiili-additio (LUMO 3D)")
+main_tabs.set_title(3, "🎯 Nukleofiili-additio")
 
 app_container = widgets.VBox([
     main_tabs

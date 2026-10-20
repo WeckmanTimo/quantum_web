@@ -6,12 +6,17 @@ Generoi 3D-kuutiot (Gaussian .cube) atomiorbitaaleille ja LCAO-demonstraatioille
    - C2H4_LUMO_AO.cube: Kaksi hiilen 2px-atomiorbitaalia vastakkaisissa vaiheissa (-> pi*-hajoittava)
 
 2. Yksittäisen atomin (C / Atomi) perusorbitaalit:
-   - Atom_1s.cube:  1s-pallosymmetrinen orbitaali
-   - Atom_2s.cube:  2s-orbitaali (säteittäinen solmupinta)
-   - Atom_2pz.cube: 2pz-kahdeksikko z-akselilla
-   - Atom_2px.cube: 2px-kahdeksikko x-akselilla
-   - Atom_2py.cube: 2py-kahdeksikko y-akselilla
-   - Atom_sp3.cube: sp3-suunnattu hybridiorbitaali
+   - Atom_1s.cube:    1s-pallosymmetrinen orbitaali
+   - Atom_2s.cube:    2s-orbitaali (säteittäinen solmupinta)
+   - Atom_2pz.cube:   2pz-kahdeksikko z-akselilla
+   - Atom_2px.cube:   2px-kahdeksikko x-akselilla
+   - Atom_2py.cube:   2py-kahdeksikko y-akselilla
+   - Atom_sp3.cube:   sp3-suunnattu hybridiorbitaali
+   - Atom_3dz2.cube:  3dz2-orbitaali (z-akselin lohkot ja xy-donitsirengas)
+   - Atom_3dxz.cube:  3dxz-neliapila xz-tasossa
+   - Atom_3dyz.cube:  3dyz-neliapila yz-tasossa
+   - Atom_3dxy.cube:  3dxy-neliapila xy-tasossa
+   - Atom_3dx2y2.cube: 3dx2-y2-neliapila x- ja y-akseleilla
 """
 import os
 import sys
@@ -169,7 +174,20 @@ def generate_atomic_cubes():
     
     # sp3 hybridiorbitaali: 1/2 * (2s + 2px + 2py + 2pz)
     val_sp3 = 0.5 * (val_2s + val_2px + val_2py + val_2pz) * 1.4
-    
+
+    # 3d-orbitaalit (l = 2): 3dz2, 3dxz, 3dyz, 3dxy, 3dx2-y2
+    idx_3dxy = [i for i, l in enumerate(labels) if "3dxy" in l][0]
+    idx_3dyz = [i for i, l in enumerate(labels) if "3dyz" in l][0]
+    idx_3dz2 = [i for i, l in enumerate(labels) if "3dz^2" in l][0]
+    idx_3dxz = [i for i, l in enumerate(labels) if "3dxz" in l][0]
+    idx_3dx2y2 = [i for i, l in enumerate(labels) if "3dx2-y2" in l][0]
+
+    val_3dxy = ao_vals[:, idx_3dxy] * 0.55
+    val_3dyz = ao_vals[:, idx_3dyz] * 0.55
+    val_3dz2 = ao_vals[:, idx_3dz2] * 0.55
+    val_3dxz = ao_vals[:, idx_3dxz] * 0.55
+    val_3dx2y2 = ao_vals[:, idx_3dx2y2] * 0.55
+
     cubes_to_write = {
         "Atom_1s.cube": (val_1s, "Atom 1s orbital"),
         "Atom_2s.cube": (val_2s, "Atom 2s orbital"),
@@ -177,8 +195,13 @@ def generate_atomic_cubes():
         "Atom_2py.cube": (val_2py, "Atom 2py orbital"),
         "Atom_2pz.cube": (val_2pz, "Atom 2pz orbital"),
         "Atom_sp3.cube": (val_sp3, "Atom sp3 hybrid orbital"),
+        "Atom_3dz2.cube": (val_3dz2, "Atom 3dz2 orbital"),
+        "Atom_3dxz.cube": (val_3dxz, "Atom 3dxz orbital"),
+        "Atom_3dyz.cube": (val_3dyz, "Atom 3dyz orbital"),
+        "Atom_3dxy.cube": (val_3dxy, "Atom 3dxy orbital"),
+        "Atom_3dx2y2.cube": (val_3dx2y2, "Atom 3dx2-y2 orbital"),
     }
-    
+
     for fname, (val_arr, desc) in cubes_to_write.items():
         fpath = os.path.join(CUBES_DIR, fname)
         cc.write(val_arr.reshape(nx, ny, nz), fpath, comment=desc)

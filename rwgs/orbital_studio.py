@@ -51,7 +51,7 @@ def render_molecule_3d_iframe(
     """
     cubes_data = {}
     if mol_key == "Atom":
-        possible_orbs = ["1s", "2s", "2pz", "2px", "2py", "sp3"]
+        possible_orbs = ["1s", "2s", "2pz", "2px", "2py", "sp3", "3dz2", "3dxz", "3dyz", "3dxy", "3dx2y2"]
     elif mol_key == "C2H4":
         possible_orbs = ["HOMO-1", "HOMO", "LUMO", "LUMO+1", "HOMO_AO", "LUMO_AO"]
     else:
@@ -642,41 +642,75 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str, lcao_mode: str = 
     # 2.5. Atomi (Hiili, C) – Aufbau, Hundin sääntö ja kvanttiluvut
     # --------------------------------------------------------------------------
     elif mol_key == "Atom":
-        svg_lines.append(text(270, 24, "Hiiliatomi (C) – Atomiorbitaalien energiatasot", size=14, weight="bold"))
-        svg_lines.append(text(270, 44, "Elektronikonfiguraatio 1s² 2s² 2p² (Aufbau & Hund)", size=12, color=text_sub))
+        svg_lines.append(text(270, 22, "Hiiliatomi (C) – Atomiorbitaalien energiatasot", size=14, weight="bold"))
+        svg_lines.append(text(270, 40, "Elektronikonfiguraatio 1s² 2s² 2p² (Aufbau & Hund)", size=12, color=text_sub))
 
         # Pystyakseli (Energia)
-        svg_lines.append(line(50, 485, 50, 70, color="#64748b", width=2.0))
-        svg_lines.append('<polygon points="50,60 45,74 55,74" fill="#64748b"/>')
-        svg_lines.append(text(40, 65, "E", anchor="end", size=13, weight="bold", color="#64748b"))
+        svg_lines.append(line(50, 485, 50, 65, color="#64748b", width=2.0))
+        svg_lines.append('<polygon points="50,55 45,69 55,69" fill="#64748b"/>')
+        svg_lines.append(text(40, 60, "E", anchor="end", size=13, weight="bold", color="#64748b"))
 
         # Kvanttilukutaulukko / selitteet oikeassa laidassa
-        svg_lines.append(text(435, 75, "Kvanttiluvut (n, l, m):", anchor="middle", size=12, weight="bold", color=text_sub))
+        svg_lines.append(text(435, 65, "Kvanttiluvut (n, l, m):", anchor="middle", size=12, weight="bold", color=text_sub))
 
-        # 1s (y = 445)
-        is_1s = (selected_orb_key == "1s")
-        col_1s = lvl_hi_occ if is_1s else lvl_norm
-        w_1s = 4.5 if is_1s else 2.5
-        svg_lines.append(line(170, 445, 310, 445, color=col_1s, width=w_1s))
-        svg_lines.append(draw_pair(240, 445))
-        svg_lines.append(text(150, 449, "1s", anchor="end", size=13, weight="bold", color=col_1s))
-        svg_lines.append(text(435, 449, "n=1, l=0 (ei solmuja)", anchor="middle", size=11, color=text_sub))
-        if is_1s:
-            svg_lines.append(text(325, 449, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+        # ----------------------------------------------------------------------
+        # 3d degeneroidut tasot (y = 105): 3d_xy, 3d_yz, 3d_z², 3d_xz, 3d_x²-y²
+        # ----------------------------------------------------------------------
+        is_3dxy = (selected_orb_key == "3dxy")
+        is_3dyz = (selected_orb_key == "3dyz")
+        is_3dz2 = (selected_orb_key == "3dz2")
+        is_3dxz = (selected_orb_key == "3dxz")
+        is_3dx2y2 = (selected_orb_key == "3dx2y2")
 
-        # 2s (y = 330)
-        is_2s = (selected_orb_key == "2s")
-        col_2s = lvl_hi_occ if is_2s else lvl_norm
-        w_2s = 4.5 if is_2s else 2.5
-        svg_lines.append(line(170, 330, 310, 330, color=col_2s, width=w_2s))
-        svg_lines.append(draw_pair(240, 330))
-        svg_lines.append(text(150, 334, "2s", anchor="end", size=13, weight="bold", color=col_2s))
-        svg_lines.append(text(435, 334, "n=2, l=0 (1 radiaalinen solmu)", anchor="middle", size=11, color=text_sub))
-        if is_2s:
-            svg_lines.append(text(325, 334, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+        col_3dxy = lvl_hi_virt if is_3dxy else lvl_norm
+        col_3dyz = lvl_hi_virt if is_3dyz else lvl_norm
+        col_3dz2 = lvl_hi_virt if is_3dz2 else lvl_norm
+        col_3dxz = lvl_hi_virt if is_3dxz else lvl_norm
+        col_3dx2y2 = lvl_hi_virt if is_3dx2y2 else lvl_norm
 
-        # 2p degeneroidut tasot (y = 190): 2p_x, 2p_y, 2p_z
-        # Hundin säännön mukaan 2p_x ja 2p_y ovat parittomasti miehitettyjä, 2p_z on tyhjä
+        w_3dxy = 4.5 if is_3dxy else 2.5
+        w_3dyz = 4.5 if is_3dyz else 2.5
+        w_3dz2 = 4.5 if is_3dz2 else 2.5
+        w_3dxz = 4.5 if is_3dxz else 2.5
+        w_3dx2y2 = 4.5 if is_3dx2y2 else 2.5
+
+        # 3d_xy (100 - 145)
+        svg_lines.append(line(100, 105, 145, 105, color=col_3dxy, width=w_3dxy))
+        svg_lines.append(text(122, 124, "3d_xy", anchor="middle", size=11, weight="bold", color=col_3dxy))
+
+        # 3d_yz (155 - 200)
+        svg_lines.append(line(155, 105, 200, 105, color=col_3dyz, width=w_3dyz))
+        svg_lines.append(text(177, 124, "3d_yz", anchor="middle", size=11, weight="bold", color=col_3dyz))
+
+        # 3d_z² (210 - 255)
+        svg_lines.append(line(210, 105, 255, 105, color=col_3dz2, width=w_3dz2))
+        svg_lines.append(text(232, 124, "3d_z²", anchor="middle", size=11, weight="bold", color=col_3dz2))
+
+        # 3d_xz (265 - 310)
+        svg_lines.append(line(265, 105, 310, 105, color=col_3dxz, width=w_3dxz))
+        svg_lines.append(text(287, 124, "3d_xz", anchor="middle", size=11, weight="bold", color=col_3dxz))
+
+        # 3d_x²-y² (320 - 365)
+        svg_lines.append(line(320, 105, 365, 105, color=col_3dx2y2, width=w_3dx2y2))
+        svg_lines.append(text(342, 124, "3d_x²-y²", anchor="middle", size=11, weight="bold", color=col_3dx2y2))
+
+        svg_lines.append(text(85, 109, "3d", anchor="end", size=13, weight="bold", color=text_main))
+        svg_lines.append(text(435, 109, "n=3, l=2 (2 kulmasolmutasoa)", anchor="middle", size=11, color=text_sub))
+
+        if is_3dxy:
+            svg_lines.append(text(122, 88, "◄ 3D", anchor="middle", size=11, weight="bold", color=lvl_hi_virt))
+        elif is_3dyz:
+            svg_lines.append(text(177, 88, "◄ 3D", anchor="middle", size=11, weight="bold", color=lvl_hi_virt))
+        elif is_3dz2:
+            svg_lines.append(text(232, 88, "◄ 3D", anchor="middle", size=11, weight="bold", color=lvl_hi_virt))
+        elif is_3dxz:
+            svg_lines.append(text(287, 88, "◄ 3D", anchor="middle", size=11, weight="bold", color=lvl_hi_virt))
+        elif is_3dx2y2:
+            svg_lines.append(text(342, 88, "◄ 3D", anchor="middle", size=11, weight="bold", color=lvl_hi_virt))
+
+        # ----------------------------------------------------------------------
+        # 2p degeneroidut tasot (y = 205): 2p_x, 2p_y, 2p_z
+        # ----------------------------------------------------------------------
         is_2px = (selected_orb_key == "2px")
         is_2py = (selected_orb_key == "2py")
         is_2pz = (selected_orb_key == "2pz")
@@ -690,44 +724,72 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str, lcao_mode: str = 
         w_2pz = 4.5 if is_2pz else 2.5
 
         # 2p_x (130 - 180)
-        svg_lines.append(line(130, 190, 180, 190, color=col_2px, width=w_2px))
-        svg_lines.append(draw_single(155, 190))
-        svg_lines.append(text(155, 212, "2p_x", anchor="middle", size=12, weight="bold", color=col_2px))
+        svg_lines.append(line(130, 205, 180, 205, color=col_2px, width=w_2px))
+        svg_lines.append(draw_single(155, 205))
+        svg_lines.append(text(155, 226, "2p_x", anchor="middle", size=12, weight="bold", color=col_2px))
 
         # 2p_y (215 - 265)
-        svg_lines.append(line(215, 190, 265, 190, color=col_2py, width=w_2py))
-        svg_lines.append(draw_single(240, 190))
-        svg_lines.append(text(240, 212, "2p_y", anchor="middle", size=12, weight="bold", color=col_2py))
+        svg_lines.append(line(215, 205, 265, 205, color=col_2py, width=w_2py))
+        svg_lines.append(draw_single(240, 205))
+        svg_lines.append(text(240, 226, "2p_y", anchor="middle", size=12, weight="bold", color=col_2py))
 
         # 2p_z (300 - 350)
-        svg_lines.append(line(300, 190, 350, 190, color=col_2pz, width=w_2pz))
-        svg_lines.append(text(325, 212, "2p_z", anchor="middle", size=12, weight="bold", color=col_2pz))
+        svg_lines.append(line(300, 205, 350, 205, color=col_2pz, width=w_2pz))
+        svg_lines.append(text(325, 226, "2p_z", anchor="middle", size=12, weight="bold", color=col_2pz))
 
-        svg_lines.append(text(110, 194, "2p", anchor="end", size=13, weight="bold", color=text_main))
-        svg_lines.append(text(435, 194, "n=2, l=1 (1 kulmasolmutaso)", anchor="middle", size=11, color=text_sub))
+        svg_lines.append(text(110, 209, "2p", anchor="end", size=13, weight="bold", color=text_main))
+        svg_lines.append(text(435, 209, "n=2, l=1 (1 kulmasolmutaso)", anchor="middle", size=11, color=text_sub))
 
         if is_2px:
-            svg_lines.append(text(155, 168, "◄ 3D", anchor="middle", size=11, weight="bold", color=lvl_hi_occ))
+            svg_lines.append(text(155, 185, "◄ 3D", anchor="middle", size=11, weight="bold", color=lvl_hi_occ))
         elif is_2py:
-            svg_lines.append(text(240, 168, "◄ 3D", anchor="middle", size=11, weight="bold", color=lvl_hi_occ))
+            svg_lines.append(text(240, 185, "◄ 3D", anchor="middle", size=11, weight="bold", color=lvl_hi_occ))
         elif is_2pz:
-            svg_lines.append(text(325, 168, "◄ 3D", anchor="middle", size=11, weight="bold", color=lvl_hi_virt))
+            svg_lines.append(text(325, 185, "◄ 3D", anchor="middle", size=11, weight="bold", color=lvl_hi_virt))
 
-        # sp^3 hybriditaso (y = 255, katkoviiva s- ja p-tasojen välissä)
+        # ----------------------------------------------------------------------
+        # sp^3 hybriditaso (y = 265, katkoviiva s- ja p-tasojen välissä)
+        # ----------------------------------------------------------------------
         is_sp3 = (selected_orb_key == "sp3")
         col_sp3 = "#8b5cf6" if is_sp3 else "#94a3b8"
         w_sp3 = 3.5 if is_sp3 else 1.8
         dash_sp3 = "" if is_sp3 else "4,3"
-        svg_lines.append(line(160, 255, 320, 255, color=col_sp3, width=w_sp3, dash=dash_sp3))
-        svg_lines.append(text(145, 259, "sp³", anchor="end", size=12, weight="bold", color=col_sp3))
-        svg_lines.append(text(435, 259, "1×2s + 3×2p hybridisaatio", anchor="middle", size=11, color=col_sp3))
+        svg_lines.append(line(160, 265, 320, 265, color=col_sp3, width=w_sp3, dash=dash_sp3))
+        svg_lines.append(text(145, 269, "sp³", anchor="end", size=12, weight="bold", color=col_sp3))
+        svg_lines.append(text(435, 269, "1×2s + 3×2p hybridisaatio", anchor="middle", size=11, color=col_sp3))
         if is_sp3:
-            svg_lines.append(text(335, 259, "◄ 3D (tetraedri)", anchor="start", size=12, weight="bold", color="#8b5cf6"))
+            svg_lines.append(text(335, 269, "◄ 3D (tetraedri)", anchor="start", size=12, weight="bold", color="#8b5cf6"))
+
+        # ----------------------------------------------------------------------
+        # 2s (y = 340)
+        # ----------------------------------------------------------------------
+        is_2s = (selected_orb_key == "2s")
+        col_2s = lvl_hi_occ if is_2s else lvl_norm
+        w_2s = 4.5 if is_2s else 2.5
+        svg_lines.append(line(170, 340, 310, 340, color=col_2s, width=w_2s))
+        svg_lines.append(draw_pair(240, 340))
+        svg_lines.append(text(150, 344, "2s", anchor="end", size=13, weight="bold", color=col_2s))
+        svg_lines.append(text(435, 344, "n=2, l=0 (1 radiaalinen solmu)", anchor="middle", size=11, color=text_sub))
+        if is_2s:
+            svg_lines.append(text(325, 344, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+
+        # ----------------------------------------------------------------------
+        # 1s (y = 445)
+        # ----------------------------------------------------------------------
+        is_1s = (selected_orb_key == "1s")
+        col_1s = lvl_hi_occ if is_1s else lvl_norm
+        w_1s = 4.5 if is_1s else 2.5
+        svg_lines.append(line(170, 445, 310, 445, color=col_1s, width=w_1s))
+        svg_lines.append(draw_pair(240, 445))
+        svg_lines.append(text(150, 449, "1s", anchor="end", size=13, weight="bold", color=col_1s))
+        svg_lines.append(text(435, 449, "n=1, l=0 (ei solmuja)", anchor="middle", size=11, color=text_sub))
+        if is_1s:
+            svg_lines.append(text(325, 449, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
 
         # Alareunan säännöt
         svg_lines.append('<rect x="30" y="490" width="480" height="52" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>')
-        svg_lines.append(text(270, 510, "Aufbau-periaate: 1s < 2s < 2p täyttyy energian mukaan", anchor="middle", size=11.5, weight="bold", color=text_main))
-        svg_lines.append(text(270, 528, "Hundin sääntö: degeneroidut 2p-tilat miehittyvät yksittäin samansuuntaisin spinein", anchor="middle", size=11, color=text_sub))
+        svg_lines.append(text(270, 510, "Aufbau-periaate: 1s < 2s < 2p < 3d täyttyy energian mukaan", anchor="middle", size=11.5, weight="bold", color=text_main))
+        svg_lines.append(text(270, 528, "Hundin sääntö: degeneroidut p- ja d-tilat miehittyvät yksittäin samansuuntaisin spinein", anchor="middle", size=11, color=text_sub))
 
     svg_lines.append("</svg>")
     return "".join(svg_lines)
@@ -749,6 +811,7 @@ def render_fmo_explanation_html(
         is_s = selected_orb in ["1s", "2s"]
         is_p = selected_orb in ["2px", "2py", "2pz"]
         is_sp3 = (selected_orb == "sp3")
+        is_d = selected_orb in ["3dz2", "3dxz", "3dyz", "3dxy", "3dx2y2"]
 
         s_border = "#0284c7" if is_s else "#e2e8f0"
         s_bg = "#f0f9ff" if is_s else "#ffffff"
@@ -760,6 +823,18 @@ def render_fmo_explanation_html(
             " <span style='background:#8b5cf6; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>SP³ VALITTUNA</span>" if is_sp3 else ""
         )
 
+        d_border = "#059669" if is_d else "#e2e8f0"
+        d_bg = "#ecfdf5" if is_d else "#ffffff"
+        d_display_map = {
+            "3dz2": "3d_z²",
+            "3dxz": "3d_xz",
+            "3dyz": "3d_yz",
+            "3dxy": "3d_xy",
+            "3dx2y2": "3d_x²-y²",
+        }
+        d_badge_text = d_display_map.get(selected_orb, "3d")
+        d_badge = f" <span style='background:#059669; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>{d_badge_text.upper()} VALITTUNA</span>" if is_d else ""
+
         return f"""
     <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:16px 20px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:#1e293b; box-shadow:0 1px 3px rgba(0,0,0,0.04); margin-top:14px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
@@ -769,7 +844,7 @@ def render_fmo_explanation_html(
         <span style="font-size:11.5px; color:#64748b; background:#f1f5f9; padding:2px 8px; border-radius:12px;">Schrödingerin yhtälön ratkaisut</span>
       </div>
 
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-bottom:14px;">
         <!-- s-orbitaalit ja aaltofunktio -->
         <div style="background:{s_bg}; border:2px solid {s_border}; border-radius:8px; padding:12px 15px; transition:all 0.2s ease;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
@@ -790,7 +865,7 @@ def render_fmo_explanation_html(
         <!-- p-orbitaalit ja hybridisaatio -->
         <div style="background:{p_bg}; border:2px solid {p_border}; border-radius:8px; padding:12px 15px; transition:all 0.2s ease;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:13.5px; font-weight:700; color:#d97706;">🟠 p-orbitaalit (l = 1) & sp³-hybridisaatio</span>
+            <span style="font-size:13.5px; font-weight:700; color:#d97706;">🟠 p-orbitaalit (l = 1) & sp³</span>
             {p_badge}
           </div>
           <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
@@ -801,6 +876,23 @@ def render_fmo_explanation_html(
           </p>
           <div style="font-size:11.5px; background:rgba(139,92,246,0.1); padding:4px 8px; border-radius:4px; color:#6d28d9;">
             <b>sp³-hybridisaatio:</b> Yhdistää yhden 2s- ja kolme 2p-orbitaalia neljäksi suunnatuksi hybridiorbitaaliksi (tetraedrikulma 109.5°), kuten hiilellä metaanissa (CH₄).
+          </div>
+        </div>
+
+        <!-- d-orbitaalit ja siirtymämetallit -->
+        <div style="background:{d_bg}; border:2px solid {d_border}; border-radius:8px; padding:12px 15px; transition:all 0.2s ease;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:13.5px; font-weight:700; color:#059669;">🟢 d-orbitaalit (l = 2) & Siirtymämetallit</span>
+            {d_badge}
+          </div>
+          <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
+            • <b>5 avaruudellista muotoa:</b> Neljä neliapilamaista orbitaalia (<i>3d_xy, 3d_yz, 3d_xz, 3d_x²-y²</i>) ja <i>3d_z²</i>, jolla on kaksi lohkoa z-akselilla sekä toroidimainen rengas (donitsi) xy-tasossa.
+          </p>
+          <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
+            • <b>Kaksi solmupintaa:</b> Kaikilla d-orbitaaleilla on 2 kulmasolmutasoa tai -kartiopintaa, joissa aaltofunktio vaihtaa merkkiä (ψ = 0).
+          </p>
+          <div style="font-size:11.5px; background:rgba(5,150,105,0.08); padding:4px 8px; border-radius:4px; color:#047857;">
+            <b>Ligandikenttäteoria:</b> d-orbitaalit ovat keskeisiä siirtymämetallien sidoksissa, katalyysissä ja kompleksiyhdisteiden oktaedrisessä (t₂_g / e_g) energiatasojen hajoamisessa.
           </div>
         </div>
       </div>
@@ -1015,6 +1107,31 @@ def create_orbital_studio() -> widgets.VBox:
             button_style="success" if state["atom_orb"] == "sp3" else "",
             layout=widgets.Layout(width="72px", height="34px")
         ),
+        "3dz2": widgets.Button(
+            description="3d_z²",
+            button_style="warning" if state["atom_orb"] == "3dz2" else "",
+            layout=widgets.Layout(width="78px", height="34px")
+        ),
+        "3dxz": widgets.Button(
+            description="3d_xz",
+            button_style="warning" if state["atom_orb"] == "3dxz" else "",
+            layout=widgets.Layout(width="78px", height="34px")
+        ),
+        "3dyz": widgets.Button(
+            description="3d_yz",
+            button_style="warning" if state["atom_orb"] == "3dyz" else "",
+            layout=widgets.Layout(width="78px", height="34px")
+        ),
+        "3dxy": widgets.Button(
+            description="3d_xy",
+            button_style="warning" if state["atom_orb"] == "3dxy" else "",
+            layout=widgets.Layout(width="78px", height="34px")
+        ),
+        "3dx2y2": widgets.Button(
+            description="3d_x²-y²",
+            button_style="warning" if state["atom_orb"] == "3dx2y2" else "",
+            layout=widgets.Layout(width="84px", height="34px")
+        ),
     }
 
     btn_lcao_mo = widgets.Button(
@@ -1144,12 +1261,8 @@ def create_orbital_studio() -> widgets.VBox:
     btn_lcao_mo.on_click(lambda _: on_lcao_mode_clicked("MO"))
     btn_lcao_ao.on_click(lambda _: on_lcao_mode_clicked("AO"))
 
-    atom_orb_btns["1s"].on_click(lambda _: on_atom_orb_clicked("1s"))
-    atom_orb_btns["2s"].on_click(lambda _: on_atom_orb_clicked("2s"))
-    atom_orb_btns["2pz"].on_click(lambda _: on_atom_orb_clicked("2pz"))
-    atom_orb_btns["2px"].on_click(lambda _: on_atom_orb_clicked("2px"))
-    atom_orb_btns["2py"].on_click(lambda _: on_atom_orb_clicked("2py"))
-    atom_orb_btns["sp3"].on_click(lambda _: on_atom_orb_clicked("sp3"))
+    for k, btn in atom_orb_btns.items():
+        btn.on_click(lambda _, key=k: on_atom_orb_clicked(key))
 
     # Asettelu
     header_html = widgets.HTML("""
@@ -1182,15 +1295,29 @@ def create_orbital_studio() -> widgets.VBox:
         widgets.HTML("<span style='color:#64748b; font-size:11.5px; margin-left:6px;'><i>(Kierrä molekyyliä ja vertaa hiilen 2p_z lähtöorbitaaleja ja niistä muodostuvaa π-sidosta)</i></span>"),
     ], layout=widgets.Layout(align_items="center", display="none", margin="0 0 6px 0", gap="8px"))
 
-    atom_orb_row = widgets.HBox([
-        widgets.HTML("<b style='color:#334155; font-size:13px; margin-right:8px;'>Atomiorbitaali:</b>"),
+    atom_orb_row1 = widgets.HBox([
+        widgets.HTML("<b style='color:#334155; font-size:13px; min-width:130px;'>s- ja p-orbitaalit:</b>"),
         atom_orb_btns["1s"],
         atom_orb_btns["2s"],
-        atom_orb_btns["2pz"],
         atom_orb_btns["2px"],
         atom_orb_btns["2py"],
+        atom_orb_btns["2pz"],
         atom_orb_btns["sp3"],
-    ], layout=widgets.Layout(align_items="center", display="none", margin="0 0 6px 0", gap="8px"))
+    ], layout=widgets.Layout(align_items="center", gap="8px"))
+
+    atom_orb_row2 = widgets.HBox([
+        widgets.HTML("<b style='color:#334155; font-size:13px; min-width:130px;'>3d-orbitaalit (l = 2):</b>"),
+        atom_orb_btns["3dz2"],
+        atom_orb_btns["3dxz"],
+        atom_orb_btns["3dyz"],
+        atom_orb_btns["3dxy"],
+        atom_orb_btns["3dx2y2"],
+    ], layout=widgets.Layout(align_items="center", gap="8px"))
+
+    atom_orb_row = widgets.VBox([
+        atom_orb_row1,
+        atom_orb_row2
+    ], layout=widgets.Layout(display="none", margin="0 0 6px 0", gap="6px"))
 
     control_card = widgets.VBox([
         mol_row,
