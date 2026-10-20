@@ -2,7 +2,9 @@
 Comp-Chem-Lab: Pääsovellus ja Välilehtinäkymä
 =============================================
 1. Välilehti: Käänteinen vesikaasuntasausreaktio (RWGS, kvanttikemiallinen malli)
-2. Välilehti: Butaanin voimakenttä ja 3D-hiiriohjaus (Molekyylimekaniikka)
+2. Välilehti: Voimakenttä & Molekyylimekaniikka (Butaani & Propyylibentseeni)
+3. Välilehti: Molekyyliorbitaalit (HOMO / LUMO 3D & LCAO)
+4. Välilehti: Nukleofiili-additio (LUMO 3D)
 """
 from __future__ import annotations
 import os
@@ -21,20 +23,27 @@ import benzene_studio
 import orbital_studio
 import nucleophilic_addition_studio
 
-# Luodaan välilehdet laboratorioille
+# Voimakenttä- ja molekyylimekaniikkastudio (Butaani ja Propyylibentseeni yhdessä välilehdessä)
+ff_tabs = widgets.Tab(children=[
+    mm_studio.create_mm_studio(),
+    benzene_studio.create_benzene_studio()
+], layout=widgets.Layout(width="100%"))
+
+ff_tabs.set_title(0, "⚙️ Butaani (C₄H₁₀)")
+ff_tabs.set_title(1, "⬡ Propyylibentseeni (C₉H₁₂)")
+
+# Luodaan päävälilehdet laboratorioille
 main_tabs = widgets.Tab(children=[
     rwgs_studio.dashboard,
-    mm_studio.create_mm_studio(),
-    benzene_studio.create_benzene_studio(),
+    ff_tabs,
     orbital_studio.create_orbital_studio(),
     nucleophilic_addition_studio.create_nucleophilic_addition_studio()
 ])
 
 main_tabs.set_title(0, "🧪 RWGS-reaktiostudio (Kvanttikemia)")
-main_tabs.set_title(1, "⚙️ Voimakenttä (Butaani)")
-main_tabs.set_title(2, "⬡ Bentseenirengas & ketju (Propyylibentseeni)")
-main_tabs.set_title(3, "⚛️ Molekyyliorbitaalit (HOMO / LUMO 3D)")
-main_tabs.set_title(4, "🎯 Nukleofiili-additio (LUMO 3D)")
+main_tabs.set_title(1, "⚙️ Voimakenttä & Molekyylimekaniikka (MM)")
+main_tabs.set_title(2, "⚛️ Molekyyliorbitaalit (HOMO / LUMO 3D)")
+main_tabs.set_title(3, "🎯 Nukleofiili-additio (LUMO 3D)")
 
 app_container = widgets.VBox([
     main_tabs
