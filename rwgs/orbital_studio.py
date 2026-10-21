@@ -374,444 +374,309 @@ def render_mo_diagram_svg(mol_key: str, selected_orb_key: str, lcao_mode: str = 
             svg_lines.append(text(315, 47, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
 
     # --------------------------------------------------------------------------
-    # 2.2. H2O – Taipunut molekyyli & sp-hybridisaatio
+    # 2.2. H2O – Molekyyliorbitaalien energiatasot (Pure MO diagram)
     # --------------------------------------------------------------------------
     elif mol_key == "H2O":
-        svg_lines.append(text(270, 24, "H₂O – Molekyyliorbitaalikaavio", size=14, weight="bold"))
-        svg_lines.append(text(95, 525, "2 × H (1s)", size=13, weight="bold", color=text_sub))
-        svg_lines.append(text(270, 525, "H₂O", size=14, weight="bold"))
-        svg_lines.append(text(455, 525, "O", size=13, weight="bold", color=text_sub))
+        svg_lines.append(text(270, 22, "H₂O (Vesi) – Molekyyliorbitaalien energiatasot", size=14, weight="bold"))
+        svg_lines.append(text(270, 40, "Keskinäinen energiajärjestys (10 elektronia: 1a₁² 2a₁² 1b₂² 3a₁² 1b₁²)", size=12, color=text_sub))
 
-        # Korrelaatiot
-        svg_lines.append(corr(130, 230, 240, 475))
-        svg_lines.append(corr(425, 440, 300, 475))
+        # Pystyakseli (Energia)
+        svg_lines.append(line(55, 485, 55, 60, color="#64748b", width=2.0))
+        svg_lines.append('<polygon points="55,50 50,64 60,64" fill="#64748b"/>')
+        svg_lines.append(text(45, 55, "E", anchor="end", size=13, weight="bold", color="#64748b"))
 
-        svg_lines.append(corr(130, 230, 240, 280))
-        svg_lines.append(corr(395, 185, 300, 280))
-
-        svg_lines.append(corr(130, 230, 240, 200))
-        svg_lines.append(corr(425, 440, 300, 200))
-        svg_lines.append(corr(440, 185, 300, 200))
-
-        svg_lines.append(corr(475, 185, 300, 165))
-
-        svg_lines.append(corr(130, 230, 240, 95))
-        svg_lines.append(corr(440, 185, 300, 95))
-
-        svg_lines.append(corr(130, 230, 240, 42))
-        svg_lines.append(corr(395, 185, 300, 42))
-
-        # Vasen: 2x H (1s)
-        svg_lines.append(line(65, 230, 95, 230))
-        svg_lines.append(line(105, 230, 135, 230))
-        svg_lines.append(draw_single(80, 230))
-        svg_lines.append(draw_single(120, 230))
-        svg_lines.append(text(50, 235, "1s", anchor="end", size=13, italic=True))
-
-        # Oikea: O 2s & 2p
-        svg_lines.append(line(425, 440, 480, 440))
-        svg_lines.append(draw_pair(452.5, 440))
-        svg_lines.append(text(500, 445, "2s", anchor="start", size=13, italic=True))
-
-        for idx, (x1, x2) in enumerate([(395, 420), (430, 455), (465, 490)]):
-            svg_lines.append(line(x1, 185, x2, 185))
-            if idx == 0:
-                svg_lines.append(draw_pair((x1 + x2) / 2.0, 185))
-            else:
-                svg_lines.append(draw_single((x1 + x2) / 2.0, 185))
-        svg_lines.append(text(505, 190, "2p", anchor="start", size=13, italic=True))
-
-        # Keskellä: MOt
-        svg_lines.append(line(240, 475, 300, 475))
-        svg_lines.append(draw_pair(270, 475))
-        svg_lines.append(text(225, 480, "2a₁ (σ sitova)", anchor="end", size=12))
-
-        svg_lines.append(line(240, 280, 300, 280))
-        svg_lines.append(draw_pair(270, 280))
-        svg_lines.append(text(225, 285, "1b₂ (σ sitova)", anchor="end", size=12))
-
-        is_h_m1 = (selected_orb_key == "HOMO-1")
-        c_hm1 = lvl_hi_occ if is_h_m1 else lvl_norm
-        svg_lines.append(line(240, 200, 300, 200, color=c_hm1, width=4.5 if is_h_m1 else 2.5))
-        svg_lines.append(draw_pair(270, 200))
-        svg_lines.append(text(225, 205, "3a₁ (HOMO-1)", anchor="end", size=12, color=c_hm1))
-        if is_h_m1:
-            svg_lines.append(text(315, 205, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
-
-        is_homo = (selected_orb_key == "HOMO")
-        c_h = lvl_hi_occ if is_homo else lvl_norm
-        svg_lines.append(line(240, 165, 300, 165, color=c_h, width=4.5 if is_homo else 2.5))
-        svg_lines.append(draw_pair(270, 165))
-        svg_lines.append(text(225, 170, "1b₁ (HOMO)", anchor="end", size=12, color=c_h))
-        if is_homo:
-            svg_lines.append(text(315, 170, "◄ 3D-malli (vapaa 2p-pari)", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
-
-        is_lumo = (selected_orb_key == "LUMO")
-        c_l = lvl_hi_virt if is_lumo else lvl_norm
-        svg_lines.append(line(240, 95, 300, 95, color=c_l, width=4.5 if is_lumo else 2.5))
-        svg_lines.append(text(225, 100, "4a₁ (LUMO, σ*)", anchor="end", size=12, color=c_l))
-        if is_lumo:
-            svg_lines.append(text(315, 100, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
-
+        # 2b2 (LUMO+1, σ*) - y = 80
         is_lp1 = (selected_orb_key == "LUMO+1")
         c_lp1 = lvl_hi_virt if is_lp1 else lvl_norm
-        svg_lines.append(line(240, 42, 300, 42, color=c_lp1, width=4.5 if is_lp1 else 2.5))
-        svg_lines.append(text(225, 47, "2b₂ (LUMO+1, σ*)", anchor="end", size=12, color=c_lp1))
+        svg_lines.append(line(170, 80, 310, 80, color=c_lp1, width=4.5 if is_lp1 else 2.5))
+        svg_lines.append(text(155, 84, "2b₂ (LUMO+1, σ*)", anchor="end", size=12, weight="bold" if is_lp1 else "normal", color=c_lp1))
         if is_lp1:
-            svg_lines.append(text(315, 47, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+            svg_lines.append(text(325, 84, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+
+        # 4a1 (LUMO, σ*) - y = 145
+        is_lumo = (selected_orb_key == "LUMO")
+        c_l = lvl_hi_virt if is_lumo else lvl_norm
+        svg_lines.append(line(170, 145, 310, 145, color=c_l, width=4.5 if is_lumo else 2.5))
+        svg_lines.append(text(155, 149, "4a₁ (LUMO, σ*)", anchor="end", size=12, weight="bold" if is_lumo else "normal", color=c_l))
+        if is_lumo:
+            svg_lines.append(text(325, 149, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+
+        # 1b1 (HOMO, n_O) - y = 230
+        is_homo = (selected_orb_key == "HOMO")
+        c_h = lvl_hi_occ if is_homo else lvl_norm
+        svg_lines.append(line(170, 230, 310, 230, color=c_h, width=4.5 if is_homo else 2.5))
+        svg_lines.append(draw_pair(240, 230))
+        svg_lines.append(text(155, 234, "1b₁ (HOMO, n_O)", anchor="end", size=12, weight="bold" if is_homo else "normal", color=c_h))
+        if is_homo:
+            svg_lines.append(text(325, 234, "◄ 3D-malli (hapen vapaa 2p_x -pari)", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+
+        # 3a1 (HOMO-1) - y = 300
+        is_hm1 = (selected_orb_key == "HOMO-1")
+        c_hm1 = lvl_hi_occ if is_hm1 else lvl_norm
+        svg_lines.append(line(170, 300, 310, 300, color=c_hm1, width=4.5 if is_hm1 else 2.5))
+        svg_lines.append(draw_pair(240, 300))
+        svg_lines.append(text(155, 304, "3a₁ (HOMO-1)", anchor="end", size=12, weight="bold" if is_hm1 else "normal", color=c_hm1))
+        if is_hm1:
+            svg_lines.append(text(325, 304, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+
+        # 1b2 (σ sitova) - y = 380
+        svg_lines.append(line(170, 380, 310, 380, color=lvl_norm, width=2.5))
+        svg_lines.append(draw_pair(240, 380))
+        svg_lines.append(text(155, 384, "1b₂ (σ_OH sitova)", anchor="end", size=12))
+
+        # 2a1 (σ sitova) - y = 460
+        svg_lines.append(line(170, 460, 310, 460, color=lvl_norm, width=2.5))
+        svg_lines.append(draw_pair(240, 460))
+        svg_lines.append(text(155, 464, "2a₁ (hapen 2s runko)", anchor="end", size=12))
+
+        svg_lines.append(text(270, 520, "1a₁ (hapen 1s sisäkuori, ei piirretty) on syvällä alempana (~ -540 eV)", size=11, color=text_sub))
 
     # --------------------------------------------------------------------------
-    # 2.3. CO2 – Lineaarinen molekyyli
+    # 2.3. CO2 – Molekyyliorbitaalien energiatasot (Pure MO diagram)
     # --------------------------------------------------------------------------
     elif mol_key == "CO2":
-        svg_lines.append(text(270, 24, "CO₂ – Molekyyliorbitaalikaavio", size=14, weight="bold"))
-        svg_lines.append(text(85, 525, "C", size=13, weight="bold", color=text_sub))
-        svg_lines.append(text(270, 525, "CO₂", size=14, weight="bold"))
-        svg_lines.append(text(455, 525, "2 × O", size=13, weight="bold", color=text_sub))
+        svg_lines.append(text(270, 22, "CO₂ (Hiilidioksidi) – Molekyyliorbitaalien energiatasot", size=14, weight="bold"))
+        svg_lines.append(text(270, 40, "Keskinäinen energiajärjestys (16 valenssielektronia)", size=12, color=text_sub))
 
-        svg_lines.append(corr(115, 385, 240, 475))
-        svg_lines.append(corr(425, 440, 300, 475))
-        svg_lines.append(corr(115, 385, 240, 330))
-        svg_lines.append(corr(425, 440, 300, 330))
-        svg_lines.append(corr(395, 185, 300, 330))
+        # Pystyakseli (Energia)
+        svg_lines.append(line(55, 485, 55, 60, color="#64748b", width=2.0))
+        svg_lines.append('<polygon points="55,50 50,64 60,64" fill="#64748b"/>')
+        svg_lines.append(text(45, 55, "E", anchor="end", size=13, weight="bold", color="#64748b"))
 
-        svg_lines.append(corr(145, 150, 225, 230))
-        svg_lines.append(corr(395, 185, 315, 230))
-        svg_lines.append(corr(465, 185, 315, 160))
-
-        svg_lines.append(corr(145, 150, 225, 95))
-        svg_lines.append(corr(395, 185, 315, 95))
-        svg_lines.append(corr(115, 385, 240, 42))
-        svg_lines.append(corr(425, 440, 300, 42))
-
-        # C
-        svg_lines.append(line(60, 385, 115, 385))
-        svg_lines.append(draw_pair(87.5, 385))
-        svg_lines.append(text(40, 390, "2s", anchor="end", size=13, italic=True))
-        for idx, (x1, x2) in enumerate([(50, 75), (85, 110), (120, 145)]):
-            svg_lines.append(line(x1, 150, x2, 150))
-            if idx < 2:
-                svg_lines.append(draw_single((x1 + x2) / 2.0, 150))
-        svg_lines.append(text(35, 155, "2p", anchor="end", size=13, italic=True))
-
-        # 2x O
-        svg_lines.append(line(415, 440, 445, 440))
-        svg_lines.append(line(455, 440, 485, 440))
-        svg_lines.append(draw_pair(430, 440))
-        svg_lines.append(draw_pair(470, 440))
-        svg_lines.append(text(505, 445, "2s SALC", anchor="start", size=12))
-
-        for idx, (x1, x2) in enumerate([(395, 420), (430, 455), (465, 490)]):
-            svg_lines.append(line(x1, 185, x2, 185))
-            svg_lines.append(draw_pair((x1 + x2) / 2.0, 185))
-        svg_lines.append(text(505, 190, "2p SALC", anchor="start", size=12))
-
-        # MOt
-        svg_lines.append(line(240, 475, 300, 475))
-        svg_lines.append(draw_pair(270, 475))
-        svg_lines.append(text(225, 480, "2σ_g, 1σ_u", anchor="end", size=12))
-
-        svg_lines.append(line(240, 330, 300, 330))
-        svg_lines.append(draw_pair(270, 330))
-        svg_lines.append(text(225, 335, "3σ_g (s-p)", anchor="end", size=12))
-
-        is_h_m1 = (selected_orb_key == "HOMO-1")
-        c_hm1 = lvl_hi_occ if is_h_m1 else lvl_norm
-        svg_lines.append(line(225, 230, 255, 230, color=c_hm1, width=4.5 if is_h_m1 else 2.5))
-        svg_lines.append(line(285, 230, 315, 230, color=c_hm1, width=4.5 if is_h_m1 else 2.5))
-        svg_lines.append(draw_pair(240, 230))
-        svg_lines.append(draw_pair(300, 230))
-        svg_lines.append(text(270, 252, "1π_u (HOMO-1, sitova)", anchor="middle", size=12, color=c_hm1))
-        if is_h_m1:
-            svg_lines.append(text(330, 235, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
-
-        is_homo = (selected_orb_key == "HOMO")
-        c_h = lvl_hi_occ if is_homo else lvl_norm
-        svg_lines.append(line(225, 160, 255, 160, color=c_h, width=4.5 if is_homo else 2.5))
-        svg_lines.append(line(285, 160, 315, 160, color=c_h, width=4.5 if is_homo else 2.5))
-        svg_lines.append(draw_pair(240, 160))
-        svg_lines.append(draw_pair(300, 160))
-        svg_lines.append(text(270, 182, "1π_g (HOMO, vapaat parit)", anchor="middle", size=12, color=c_h))
-        if is_homo:
-            svg_lines.append(text(330, 165, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
-
-        is_lumo = (selected_orb_key == "LUMO")
-        c_l = lvl_hi_virt if is_lumo else lvl_norm
-        svg_lines.append(line(225, 95, 255, 95, color=c_l, width=4.5 if is_lumo else 2.5))
-        svg_lines.append(line(285, 95, 315, 95, color=c_l, width=4.5 if is_lumo else 2.5))
-        svg_lines.append(text(270, 118, "2π_u* (LUMO, π*)", anchor="middle", size=12, color=c_l))
-        if is_lumo:
-            svg_lines.append(text(330, 100, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
-
+        # 4σ_g* (LUMO+1) - y = 75
         is_lp1 = (selected_orb_key == "LUMO+1")
         c_lp1 = lvl_hi_virt if is_lp1 else lvl_norm
-        svg_lines.append(line(240, 42, 300, 42, color=c_lp1, width=4.5 if is_lp1 else 2.5))
-        svg_lines.append(text(225, 47, "4σ_g* (LUMO+1)", anchor="end", size=12, color=c_lp1))
+        svg_lines.append(line(180, 75, 300, 75, color=c_lp1, width=4.5 if is_lp1 else 2.5))
+        svg_lines.append(text(165, 79, "4σ_g* (LUMO+1)", anchor="end", size=12, weight="bold" if is_lp1 else "normal", color=c_lp1))
         if is_lp1:
-            svg_lines.append(text(315, 47, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+            svg_lines.append(text(315, 79, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+
+        # 2π_u* (LUMO, degeneroitunut pari) - y = 140
+        is_lumo = (selected_orb_key == "LUMO")
+        c_l = lvl_hi_virt if is_lumo else lvl_norm
+        svg_lines.append(line(160, 140, 215, 140, color=c_l, width=4.5 if is_lumo else 2.5))
+        svg_lines.append(line(235, 140, 290, 140, color=c_l, width=4.5 if is_lumo else 2.5))
+        svg_lines.append(text(145, 144, "2π_u* (LUMO)", anchor="end", size=12, weight="bold" if is_lumo else "normal", color=c_l))
+        if is_lumo:
+            svg_lines.append(text(305, 144, "◄ 3D-malli (π* pari)", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+
+        # 1π_g (HOMO, degeneroitunut vapaa pari) - y = 230
+        is_homo = (selected_orb_key == "HOMO")
+        c_h = lvl_hi_occ if is_homo else lvl_norm
+        svg_lines.append(line(160, 230, 215, 230, color=c_h, width=4.5 if is_homo else 2.5))
+        svg_lines.append(line(235, 230, 290, 230, color=c_h, width=4.5 if is_homo else 2.5))
+        svg_lines.append(draw_pair(187.5, 230))
+        svg_lines.append(draw_pair(262.5, 230))
+        svg_lines.append(text(145, 234, "1π_g (HOMO)", anchor="end", size=12, weight="bold" if is_homo else "normal", color=c_h))
+        if is_homo:
+            svg_lines.append(text(305, 234, "◄ 3D-malli (ei-sitovat parit)", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+
+        # 1π_u (HOMO-1, sitova π-pari) - y = 305
+        is_hm1 = (selected_orb_key == "HOMO-1")
+        c_hm1 = lvl_hi_occ if is_hm1 else lvl_norm
+        svg_lines.append(line(160, 305, 215, 305, color=c_hm1, width=4.5 if is_hm1 else 2.5))
+        svg_lines.append(line(235, 305, 290, 305, color=c_hm1, width=4.5 if is_hm1 else 2.5))
+        svg_lines.append(draw_pair(187.5, 305))
+        svg_lines.append(draw_pair(262.5, 305))
+        svg_lines.append(text(145, 309, "1π_u (HOMO-1)", anchor="end", size=12, weight="bold" if is_hm1 else "normal", color=c_hm1))
+        if is_hm1:
+            svg_lines.append(text(305, 309, "◄ 3D-malli (sitova π)", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+
+        # 3σ_g (s-p sitova) - y = 385
+        svg_lines.append(line(180, 385, 300, 385, color=lvl_norm, width=2.5))
+        svg_lines.append(draw_pair(240, 385))
+        svg_lines.append(text(165, 389, "3σ_g (σ_CO)", anchor="end", size=12))
+
+        # 2σ_u, 2σ_g (alempi σ-runko) - y = 460
+        svg_lines.append(line(160, 460, 215, 460, color=lvl_norm, width=2.5))
+        svg_lines.append(line(235, 460, 290, 460, color=lvl_norm, width=2.5))
+        svg_lines.append(draw_pair(187.5, 460))
+        svg_lines.append(draw_pair(262.5, 460))
+        svg_lines.append(text(145, 464, "2σ_u, 2σ_g", anchor="end", size=12))
+
+        svg_lines.append(text(270, 520, "Lineaarisen molekyylin D_∞h-symmetrian mukaiset energiatasot", size=11, color=text_sub))
 
     # --------------------------------------------------------------------------
-    # 2.4. C2H4 – Kaksoissidos
+    # 2.4. C2H4 – Molekyyliorbitaalien energiatasot (Pure MO diagram)
     # --------------------------------------------------------------------------
     elif mol_key == "C2H4":
-        svg_lines.append(text(270, 24, "C₂H₄ – Molekyyliorbitaalikaavio", size=14, weight="bold"))
-        svg_lines.append(text(85, 525, "CH₂ (1)", size=13, weight="bold", color=text_sub))
-        svg_lines.append(text(270, 525, "C₂H₄", size=14, weight="bold"))
-        svg_lines.append(text(455, 525, "CH₂ (2)", size=13, weight="bold", color=text_sub))
+        svg_lines.append(text(270, 22, "C₂H₄ (Eteeni) – Molekyyliorbitaalien energiatasot", size=14, weight="bold"))
+        svg_lines.append(text(270, 40, "Keskinäinen energiajärjestys (12 valenssielektronia)", size=12, color=text_sub))
 
-        svg_lines.append(corr(115, 300, 240, 460))
-        svg_lines.append(corr(425, 300, 300, 460))
-        svg_lines.append(corr(115, 300, 240, 230))
-        svg_lines.append(corr(425, 300, 300, 230))
+        # Pystyakseli (Energia)
+        svg_lines.append(line(55, 485, 55, 60, color="#64748b", width=2.0))
+        svg_lines.append('<polygon points="55,50 50,64 60,64" fill="#64748b"/>')
+        svg_lines.append(text(45, 55, "E", anchor="end", size=13, weight="bold", color="#64748b"))
 
-        svg_lines.append(corr(115, 160, 240, 160))
-        svg_lines.append(corr(425, 160, 300, 160))
-        svg_lines.append(corr(115, 160, 240, 80))
-        svg_lines.append(corr(425, 160, 300, 80))
-
-        svg_lines.append(corr(115, 300, 240, 35))
-        svg_lines.append(corr(425, 300, 300, 35))
-
-        # CH2 (1)
-        svg_lines.append(line(60, 300, 115, 300))
-        svg_lines.append(draw_pair(87.5, 300))
-        svg_lines.append(text(40, 305, "σ(sp²)", anchor="end", size=12))
-
-        # Jos LCAO AO -tila on valittu, korostetaan molemmat 2p_z lähtö-AO:t
-        is_ao_mode = (lcao_mode == "AO")
-        pz1_col = lvl_hi_occ if is_ao_mode else lvl_norm
-        pz1_w = 4.5 if is_ao_mode else 2.5
-        svg_lines.append(line(60, 160, 115, 160, color=pz1_col, width=pz1_w))
-        svg_lines.append(draw_single(87.5, 160))
-        svg_lines.append(text(40, 165, "2p_z (π)", anchor="end", size=12, weight="bold" if is_ao_mode else "normal", color=pz1_col))
-        if is_ao_mode:
-            svg_lines.append(text(87.5, 142, "AO (1) ◄", anchor="middle", size=11, weight="bold", color=lvl_hi_occ))
-
-        # CH2 (2)
-        svg_lines.append(line(425, 300, 480, 300))
-        svg_lines.append(draw_pair(452.5, 300))
-        svg_lines.append(text(500, 305, "σ(sp²)", anchor="start", size=12))
-
-        pz2_col = lvl_hi_occ if is_ao_mode else lvl_norm
-        pz2_w = 4.5 if is_ao_mode else 2.5
-        svg_lines.append(line(425, 160, 480, 160, color=pz2_col, width=pz2_w))
-        svg_lines.append(draw_single(452.5, 160))
-        svg_lines.append(text(500, 165, "2p_z (π)", anchor="start", size=12, weight="bold" if is_ao_mode else "normal", color=pz2_col))
-        if is_ao_mode:
-            svg_lines.append(text(452.5, 142, "► AO (2)", anchor="middle", size=11, weight="bold", color=lvl_hi_occ))
-
-        # MOt
-        svg_lines.append(line(240, 460, 300, 460))
-        svg_lines.append(draw_pair(270, 460))
-        svg_lines.append(text(225, 465, "σ (C-C sidos)", anchor="end", size=12))
-
-        is_h_m1 = (selected_orb_key == "HOMO-1" and not is_ao_mode)
-        c_hm1 = lvl_hi_occ if is_h_m1 else lvl_norm
-        svg_lines.append(line(240, 230, 300, 230, color=c_hm1, width=4.5 if is_h_m1 else 2.5))
-        svg_lines.append(draw_pair(270, 230))
-        svg_lines.append(text(225, 235, "1b₁ᵤ (HOMO-1, σ)", anchor="end", size=12, color=c_hm1))
-        if is_h_m1:
-            svg_lines.append(text(315, 235, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
-
-        is_homo = (selected_orb_key == "HOMO" and not is_ao_mode)
-        c_h = lvl_hi_occ if is_homo else lvl_norm
-        svg_lines.append(line(240, 160, 300, 160, color=c_h, width=4.5 if is_homo else 2.5))
-        svg_lines.append(draw_pair(270, 160))
-        svg_lines.append(text(225, 165, "1b₃ᵤ (HOMO, C=C π)", anchor="end", size=12, color=c_h))
-        if is_homo:
-            svg_lines.append(text(315, 165, "◄ 3D-malli (C=C π-sidos)", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
-
-        is_lumo = (selected_orb_key == "LUMO" and not is_ao_mode)
-        c_l = lvl_hi_virt if is_lumo else lvl_norm
-        svg_lines.append(line(240, 80, 300, 80, color=c_l, width=4.5 if is_lumo else 2.5))
-        svg_lines.append(text(225, 85, "1b₂g* (LUMO, π*)", anchor="end", size=12, color=c_l))
-        if is_lumo:
-            svg_lines.append(text(315, 85, "◄ 3D-malli (π*-hajoittava)", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
-
-        is_lp1 = (selected_orb_key == "LUMO+1" and not is_ao_mode)
+        # 3a_g* (LUMO+1, σ*) - y = 75
+        is_lp1 = (selected_orb_key == "LUMO+1")
         c_lp1 = lvl_hi_virt if is_lp1 else lvl_norm
-        svg_lines.append(line(240, 35, 300, 35, color=c_lp1, width=4.5 if is_lp1 else 2.5))
-        svg_lines.append(text(225, 40, "3a_g* (LUMO+1, σ*)", anchor="end", size=12, color=c_lp1))
+        svg_lines.append(line(170, 75, 310, 75, color=c_lp1, width=4.5 if is_lp1 else 2.5))
+        svg_lines.append(text(155, 79, "3a_g* (LUMO+1, σ*)", anchor="end", size=12, weight="bold" if is_lp1 else "normal", color=c_lp1))
         if is_lp1:
-            svg_lines.append(text(315, 40, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+            svg_lines.append(text(325, 79, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
 
-        if is_ao_mode:
-            svg_lines.append(text(270, 125, "◄ 3D-malli: Lähtö-AO:t (2 × C 2p_z)", anchor="middle", size=12, weight="bold", color=lvl_hi_occ))
+        # 1b₂g* (LUMO, π*) - y = 145
+        is_lumo = (selected_orb_key == "LUMO")
+        c_l = lvl_hi_virt if is_lumo else lvl_norm
+        svg_lines.append(line(170, 145, 310, 145, color=c_l, width=4.5 if is_lumo else 2.5))
+        svg_lines.append(text(155, 149, "1b₂g* (LUMO, π*)", anchor="end", size=12, weight="bold" if is_lumo else "normal", color=c_l))
+        if is_lumo:
+            svg_lines.append(text(325, 149, "◄ 3D-malli (π*-hajoittava)", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+
+        # 1b₃ᵤ (HOMO, C=C π) - y = 230
+        is_homo = (selected_orb_key == "HOMO")
+        c_h = lvl_hi_occ if is_homo else lvl_norm
+        svg_lines.append(line(170, 230, 310, 230, color=c_h, width=4.5 if is_homo else 2.5))
+        svg_lines.append(draw_pair(240, 230))
+        svg_lines.append(text(155, 234, "1b₃ᵤ (HOMO, C=C π)", anchor="end", size=12, weight="bold" if is_homo else "normal", color=c_h))
+        if is_homo:
+            svg_lines.append(text(325, 234, "◄ 3D-malli (C=C π-sidos)", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+
+        # 1b₁ᵤ (HOMO-1, σ) - y = 300
+        is_hm1 = (selected_orb_key == "HOMO-1")
+        c_hm1 = lvl_hi_occ if is_hm1 else lvl_norm
+        svg_lines.append(line(170, 300, 310, 300, color=c_hm1, width=4.5 if is_hm1 else 2.5))
+        svg_lines.append(draw_pair(240, 300))
+        svg_lines.append(text(155, 304, "1b₁ᵤ (HOMO-1, σ)", anchor="end", size=12, weight="bold" if is_hm1 else "normal", color=c_hm1))
+        if is_hm1:
+            svg_lines.append(text(325, 304, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+
+        # σ-kehys (C-C ja C-H) - y = 385
+        svg_lines.append(line(170, 385, 310, 385, color=lvl_norm, width=2.5))
+        svg_lines.append(draw_pair(240, 385))
+        svg_lines.append(text(155, 389, "σ(C-H, 1b₂ᵤ)", anchor="end", size=12))
+
+        # σ (C-C sidos) - y = 460
+        svg_lines.append(line(170, 460, 310, 460, color=lvl_norm, width=2.5))
+        svg_lines.append(draw_pair(240, 460))
+        svg_lines.append(text(155, 464, "σ(C-C, 2a_g)", anchor="end", size=12))
+
+        svg_lines.append(text(270, 520, "D_2h-symmetria: π- ja π*-rajaorbitaalit molekyylitason ylä- ja alapuolella", size=11, color=text_sub))
 
     # --------------------------------------------------------------------------
-    # 2.5. H2CO (Formaldehydi) – Karbonyyliryhmän MO-kaavio ja polarisaatio
+    # 2.5. H2CO (Formaldehydi) – Molekyyliorbitaalien energiatasot (Pure MO diagram)
     # --------------------------------------------------------------------------
     elif mol_key == "H2CO":
-        svg_lines.append(text(270, 24, "H₂CO (Formaldehydi) – Karbonyylin MO-kaavio", size=14, weight="bold"))
-        svg_lines.append(text(85, 525, "H₂C-lohko", size=13, weight="bold", color=text_sub))
-        svg_lines.append(text(270, 525, "H₂C=O", size=14, weight="bold"))
-        svg_lines.append(text(455, 525, "Happi (O)", size=13, weight="bold", color=text_sub))
+        svg_lines.append(text(270, 22, "H₂CO (Formaldehydi) – Molekyyliorbitaalien energiatasot", size=14, weight="bold"))
+        svg_lines.append(text(270, 40, "Keskinäinen energiajärjestys (12 valenssielektronia)", size=12, color=text_sub))
 
-        # Korrelaatioviivat
-        svg_lines.append(corr(115, 360, 240, 460))
-        svg_lines.append(corr(425, 430, 300, 460))
+        # Pystyakseli (Energia)
+        svg_lines.append(line(55, 485, 55, 60, color="#64748b", width=2.0))
+        svg_lines.append('<polygon points="55,50 50,64 60,64" fill="#64748b"/>')
+        svg_lines.append(text(45, 55, "E", anchor="end", size=13, weight="bold", color="#64748b"))
 
-        svg_lines.append(corr(115, 360, 240, 370))
-        svg_lines.append(corr(425, 430, 300, 370))
-
-        svg_lines.append(corr(115, 200, 240, 290))
-        svg_lines.append(corr(425, 210, 300, 290))
-
-        svg_lines.append(corr(115, 150, 240, 220))
-        svg_lines.append(corr(425, 210, 300, 220))
-
-        svg_lines.append(corr(425, 210, 300, 160))
-
-        svg_lines.append(corr(115, 150, 240, 95))
-        svg_lines.append(corr(425, 210, 300, 95))
-
-        svg_lines.append(corr(115, 200, 240, 40))
-        svg_lines.append(corr(425, 210, 300, 40))
-
-        # Vasen: H2C (sp2 + 2pz)
-        svg_lines.append(line(60, 360, 115, 360))
-        svg_lines.append(draw_pair(87.5, 360))
-        svg_lines.append(text(40, 365, "2s / σ", anchor="end", size=12))
-
-        svg_lines.append(line(60, 200, 115, 200))
-        svg_lines.append(draw_single(87.5, 200))
-        svg_lines.append(text(40, 205, "σ(sp²)", anchor="end", size=12))
-
-        svg_lines.append(line(60, 150, 115, 150))
-        svg_lines.append(draw_single(87.5, 150))
-        svg_lines.append(text(40, 155, "2p_z (π)", anchor="end", size=12))
-
-        # Oikea: O (2s, 2p)
-        svg_lines.append(line(425, 430, 480, 430))
-        svg_lines.append(draw_pair(452.5, 430))
-        svg_lines.append(text(500, 435, "2s", anchor="start", size=12))
-
-        for idx, (x1, x2) in enumerate([(395, 420), (430, 455), (465, 490)]):
-            svg_lines.append(line(x1, 210, x2, 210))
-            if idx == 0:
-                svg_lines.append(draw_pair((x1 + x2) / 2.0, 210))
-            else:
-                svg_lines.append(draw_single((x1 + x2) / 2.0, 210))
-        svg_lines.append(text(505, 215, "2p", anchor="start", size=12))
-
-        # Keskellä: MO-tasot
-        svg_lines.append(line(240, 460, 300, 460))
-        svg_lines.append(draw_pair(270, 460))
-        svg_lines.append(text(225, 465, "1a₁ (σ_O)", anchor="end", size=12))
-
-        svg_lines.append(line(240, 370, 300, 370))
-        svg_lines.append(draw_pair(270, 370))
-        svg_lines.append(text(225, 375, "2a₁ (σ_CH)", anchor="end", size=12))
-
-        svg_lines.append(line(240, 290, 300, 290))
-        svg_lines.append(draw_pair(270, 290))
-        svg_lines.append(text(225, 295, "1b₂ (σ_CO)", anchor="end", size=12))
-
-        # HOMO-1: π(C=O) (1b1)
-        is_hm1 = (selected_orb_key == "HOMO-1")
-        c_hm1 = lvl_hi_occ if is_hm1 else lvl_norm
-        svg_lines.append(line(240, 220, 300, 220, color=c_hm1, width=4.5 if is_hm1 else 2.5))
-        svg_lines.append(draw_pair(270, 220))
-        svg_lines.append(text(225, 225, "1b₁ (HOMO-1, π_CO)", anchor="end", size=12, color=c_hm1))
-        if is_hm1:
-            svg_lines.append(text(315, 225, "◄ 3D-malli (C=O π-sidos)", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
-
-        # HOMO: n_O (2b2) hapen vapaa pari
-        is_homo = (selected_orb_key == "HOMO")
-        c_h = lvl_hi_occ if is_homo else lvl_norm
-        svg_lines.append(line(240, 160, 300, 160, color=c_h, width=4.5 if is_homo else 2.5))
-        svg_lines.append(draw_pair(270, 160))
-        svg_lines.append(text(225, 165, "2b₂ (HOMO, n_O)", anchor="end", size=12, color=c_h))
-        if is_homo:
-            svg_lines.append(text(315, 165, "◄ 3D-malli (hapen vapaa pari)", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
-
-        # LUMO: π*(C=O) (2b1*)
-        is_lumo = (selected_orb_key == "LUMO")
-        c_l = lvl_hi_virt if is_lumo else lvl_norm
-        svg_lines.append(line(240, 95, 300, 95, color=c_l, width=4.5 if is_lumo else 2.5))
-        svg_lines.append(text(225, 100, "2b₁* (LUMO, π*)", anchor="end", size=12, color=c_l))
-        if is_lumo:
-            svg_lines.append(text(315, 100, "◄ 3D-malli (reaktiokeskus)", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
-
-        # LUMO+1: σ* (3a1*)
+        # 3a1* (LUMO+1, σ*) - y = 70
         is_lp1 = (selected_orb_key == "LUMO+1")
         c_lp1 = lvl_hi_virt if is_lp1 else lvl_norm
-        svg_lines.append(line(240, 40, 300, 40, color=c_lp1, width=4.5 if is_lp1 else 2.5))
-        svg_lines.append(text(225, 45, "3a₁* (LUMO+1, σ*)", anchor="end", size=12, color=c_lp1))
+        svg_lines.append(line(170, 70, 310, 70, color=c_lp1, width=4.5 if is_lp1 else 2.5))
+        svg_lines.append(text(155, 74, "3a₁* (LUMO+1, σ*)", anchor="end", size=12, weight="bold" if is_lp1 else "normal", color=c_lp1))
         if is_lp1:
-            svg_lines.append(text(315, 45, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+            svg_lines.append(text(325, 74, "◄ 3D-malli", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+
+        # 2b1* (LUMO, π*) - y = 140
+        is_lumo = (selected_orb_key == "LUMO")
+        c_l = lvl_hi_virt if is_lumo else lvl_norm
+        svg_lines.append(line(170, 140, 310, 140, color=c_l, width=4.5 if is_lumo else 2.5))
+        svg_lines.append(text(155, 144, "2b₁* (LUMO, π*)", anchor="end", size=12, weight="bold" if is_lumo else "normal", color=c_l))
+        if is_lumo:
+            svg_lines.append(text(325, 144, "◄ 3D-malli (karbonyyli-LUMO)", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+
+        # 2b2 (HOMO, n_O) - y = 220
+        is_homo = (selected_orb_key == "HOMO")
+        c_h = lvl_hi_occ if is_homo else lvl_norm
+        svg_lines.append(line(170, 220, 310, 220, color=c_h, width=4.5 if is_homo else 2.5))
+        svg_lines.append(draw_pair(240, 220))
+        svg_lines.append(text(155, 224, "2b₂ (HOMO, n_O)", anchor="end", size=12, weight="bold" if is_homo else "normal", color=c_h))
+        if is_homo:
+            svg_lines.append(text(325, 224, "◄ 3D-malli (hapen vapaa pari)", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+
+        # 1b1 (HOMO-1, π_CO) - y = 285
+        is_hm1 = (selected_orb_key == "HOMO-1")
+        c_hm1 = lvl_hi_occ if is_hm1 else lvl_norm
+        svg_lines.append(line(170, 285, 310, 285, color=c_hm1, width=4.5 if is_hm1 else 2.5))
+        svg_lines.append(draw_pair(240, 285))
+        svg_lines.append(text(155, 289, "1b₁ (HOMO-1, π_CO)", anchor="end", size=12, weight="bold" if is_hm1 else "normal", color=c_hm1))
+        if is_hm1:
+            svg_lines.append(text(325, 289, "◄ 3D-malli (C=O π-sidos)", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+
+        # 1b2 (σ_CO) - y = 350
+        svg_lines.append(line(170, 350, 310, 350, color=lvl_norm, width=2.5))
+        svg_lines.append(draw_pair(240, 350))
+        svg_lines.append(text(155, 354, "1b₂ (σ_CO)", anchor="end", size=12))
+
+        # 2a1 (σ_CH) - y = 415
+        svg_lines.append(line(170, 415, 310, 415, color=lvl_norm, width=2.5))
+        svg_lines.append(draw_pair(240, 415))
+        svg_lines.append(text(155, 419, "2a₁ (σ_CH)", anchor="end", size=12))
+
+        # 1a1 (σ_O) - y = 475
+        svg_lines.append(line(170, 475, 310, 475, color=lvl_norm, width=2.5))
+        svg_lines.append(draw_pair(240, 475))
+        svg_lines.append(text(155, 479, "1a₁ (hapen 2s)", anchor="end", size=12))
+
+        svg_lines.append(text(270, 520, "C_2v-symmetria: HOMO on hapen n-elektronipari ja LUMO polarisoitunut π*", size=11, color=text_sub))
 
     # --------------------------------------------------------------------------
-    # 2.6. Bentseeni (C6H6) – Aromaattinen 6π-systeemi (Hückel / Frost-ympyrä)
+    # 2.6. Bentseeni (C6H6) – π-Molekyyliorbitaalien energiatasot (Pure MO diagram)
     # --------------------------------------------------------------------------
     elif mol_key == "Benzene":
-        svg_lines.append(text(270, 24, "Bentseeni (C₆H₆) – Aromaattinen π-molekyyliorbitaalikaavio", size=14, weight="bold"))
-        svg_lines.append(text(270, 42, "Hückel-sääntö: 4n + 2 = 6 π-elektronia (n = 1, suljettu kuori)", size=12, color=text_sub))
+        svg_lines.append(text(270, 22, "Bentseeni (C₆H₆) – π-Molekyyliorbitaalien energiatasot", size=14, weight="bold"))
+        svg_lines.append(text(270, 40, "Aromaattinen järjestelmä (Hückel / Frost–Musulin -energiatasot)", size=12, color=text_sub))
 
-        # 6 × C 2p_z lähtötaso katkoviivalla y = 220
-        svg_lines.append(line(70, 220, 130, 220, color="#64748b", width=1.5, dash="3,3"))
-        svg_lines.append(line(410, 220, 470, 220, color="#64748b", width=1.5, dash="3,3"))
-        svg_lines.append(text(100, 240, "3 × C(2p_z)", anchor="middle", size=11, color=text_sub))
-        svg_lines.append(text(440, 240, "3 × C(2p_z)", anchor="middle", size=11, color=text_sub))
+        # Pystyakseli (Energia)
+        svg_lines.append(line(55, 485, 55, 60, color="#64748b", width=2.0))
+        svg_lines.append('<polygon points="55,50 50,64 60,64" fill="#64748b"/>')
+        svg_lines.append(text(45, 55, "E", anchor="end", size=13, weight="bold", color="#64748b"))
 
-        # Korrelaatiot Frost-syklille
-        svg_lines.append(corr(100, 220, 240, 390))
-        svg_lines.append(corr(440, 220, 300, 390))
-        svg_lines.append(corr(100, 220, 225, 235))
-        svg_lines.append(corr(440, 220, 315, 235))
-        svg_lines.append(corr(100, 220, 225, 115))
-        svg_lines.append(corr(440, 220, 315, 115))
-        svg_lines.append(corr(100, 220, 240, 55))
-        svg_lines.append(corr(440, 220, 300, 55))
+        # π6* (b2g): Ylin hajottava orbitaali - y = 65
+        svg_lines.append(line(190, 65, 330, 65, color=lvl_norm, width=2.5))
+        svg_lines.append(text(175, 69, "π₆* (b₂g, hajottava)", anchor="end", size=12))
 
-        # π1 (a2u): Alin sitova orbitaali (kaikki lohkot samassa vaiheessa renkaan yläpuolella)
-        svg_lines.append(line(240, 390, 300, 390, color=lvl_norm, width=2.5))
-        svg_lines.append(draw_pair(270, 390))
-        svg_lines.append(text(225, 395, "π₁ (a₂ᵤ, sitova)", anchor="end", size=12))
-
-        # π2 & π3 (e1g): Degeneroitunut HOMO-kaksikko (y = 235, -9.17 eV)
-        is_hm1 = (selected_orb_key == "HOMO-1")
-        is_homo = (selected_orb_key == "HOMO")
-        c_hm1 = lvl_hi_occ if is_hm1 else lvl_norm
-        c_h = lvl_hi_occ if is_homo else lvl_norm
-
-        svg_lines.append(line(195, 235, 255, 235, color=c_hm1, width=4.5 if is_hm1 else 2.5))
-        svg_lines.append(draw_pair(225, 235))
-        svg_lines.append(text(225, 258, "π₂ (HOMO-1)", anchor="middle", size=11, weight="bold" if is_hm1 else "normal", color=c_hm1))
-
-        svg_lines.append(line(285, 235, 345, 235, color=c_h, width=4.5 if is_homo else 2.5))
-        svg_lines.append(draw_pair(315, 235))
-        svg_lines.append(text(315, 258, "π₃ (HOMO)", anchor="middle", size=11, weight="bold" if is_homo else "normal", color=c_h))
-
-        svg_lines.append(text(180, 239, "e₁_g (HOMO pari)", anchor="end", size=12, weight="bold" if (is_hm1 or is_homo) else "normal"))
-
-        if is_hm1:
-            svg_lines.append(text(360, 239, "◄ 3D: π₂ (solmutaso C-C)", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
-        elif is_homo:
-            svg_lines.append(text(360, 239, "◄ 3D: π₃ (solmutaso atomien läpi)", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
-
-        # π4* & π5* (e2u): Degeneroitunut LUMO-kaksikko (y = 115, +3.62 eV)
+        # π4* & π5* (e2u): Degeneroitunut LUMO-kaksikko - y = 145 (+3.62 eV)
         is_lumo = (selected_orb_key == "LUMO")
         is_lp1 = (selected_orb_key == "LUMO+1")
         c_l = lvl_hi_virt if is_lumo else lvl_norm
         c_lp1 = lvl_hi_virt if is_lp1 else lvl_norm
 
-        svg_lines.append(line(195, 115, 255, 115, color=c_l, width=4.5 if is_lumo else 2.5))
-        svg_lines.append(text(225, 96, "π₄* (LUMO)", anchor="middle", size=11, weight="bold" if is_lumo else "normal", color=c_l))
+        svg_lines.append(line(160, 145, 225, 145, color=c_l, width=4.5 if is_lumo else 2.5))
+        svg_lines.append(text(192.5, 126, "π₄* (LUMO)", anchor="middle", size=11, weight="bold" if is_lumo else "normal", color=c_l))
 
-        svg_lines.append(line(285, 115, 345, 115, color=c_lp1, width=4.5 if is_lp1 else 2.5))
-        svg_lines.append(text(315, 96, "π₅* (LUMO+1)", anchor="middle", size=11, weight="bold" if is_lp1 else "normal", color=c_lp1))
+        svg_lines.append(line(255, 145, 320, 145, color=c_lp1, width=4.5 if is_lp1 else 2.5))
+        svg_lines.append(text(287.5, 126, "π₅* (LUMO+1)", anchor="middle", size=11, weight="bold" if is_lp1 else "normal", color=c_lp1))
 
-        svg_lines.append(text(180, 119, "e₂_u (LUMO pari)", anchor="end", size=12, weight="bold" if (is_lumo or is_lp1) else "normal"))
+        svg_lines.append(text(145, 149, "e₂_u (LUMO)", anchor="end", size=12, weight="bold" if (is_lumo or is_lp1) else "normal"))
 
         if is_lumo:
-            svg_lines.append(text(360, 119, "◄ 3D: π₄* (4 solmulohkoa)", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+            svg_lines.append(text(335, 149, "◄ 3D: π₄*", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
         elif is_lp1:
-            svg_lines.append(text(360, 119, "◄ 3D: π₅* (vastin-LUMO)", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
+            svg_lines.append(text(335, 149, "◄ 3D: π₅*", anchor="start", size=12, weight="bold", color=lvl_hi_virt))
 
-        # π6* (b2g): Ylin hajottava orbitaali (kaikki vierekkäiset lohkot vastakkaisissa vaiheissa)
-        svg_lines.append(line(240, 55, 300, 55, color=lvl_norm, width=2.5))
-        svg_lines.append(text(225, 59, "π₆* (b₂g, hajottava)", anchor="end", size=12))
+        # π2 & π3 (e1g): Degeneroitunut HOMO-kaksikko - y = 265 (-9.17 eV)
+        is_hm1 = (selected_orb_key == "HOMO-1")
+        is_homo = (selected_orb_key == "HOMO")
+        c_hm1 = lvl_hi_occ if is_hm1 else lvl_norm
+        c_h = lvl_hi_occ if is_homo else lvl_norm
+
+        svg_lines.append(line(160, 265, 225, 265, color=c_hm1, width=4.5 if is_hm1 else 2.5))
+        svg_lines.append(draw_pair(192.5, 265))
+        svg_lines.append(text(192.5, 288, "π₂ (HOMO-1)", anchor="middle", size=11, weight="bold" if is_hm1 else "normal", color=c_hm1))
+
+        svg_lines.append(line(255, 265, 320, 265, color=c_h, width=4.5 if is_homo else 2.5))
+        svg_lines.append(draw_pair(287.5, 265))
+        svg_lines.append(text(287.5, 288, "π₃ (HOMO)", anchor="middle", size=11, weight="bold" if is_homo else "normal", color=c_h))
+
+        svg_lines.append(text(145, 269, "e₁_g (HOMO)", anchor="end", size=12, weight="bold" if (is_hm1 or is_homo) else "normal"))
+
+        if is_hm1:
+            svg_lines.append(text(335, 269, "◄ 3D: π₂", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+        elif is_homo:
+            svg_lines.append(text(335, 269, "◄ 3D: π₃", anchor="start", size=12, weight="bold", color=lvl_hi_occ))
+
+        # π1 (a2u): Alin sitova orbitaali - y = 390
+        svg_lines.append(line(190, 390, 330, 390, color=lvl_norm, width=2.5))
+        svg_lines.append(draw_pair(260, 390))
+        svg_lines.append(text(175, 394, "π₁ (a₂ᵤ, sitova)", anchor="end", size=12))
 
         # Alateksti
         svg_lines.append(text(270, 480, "Frost–Musulin ympyrämalli: 1 alin sitova + 2 degeneroitunutta sitovaa (6 e⁻)", size=11.5, color=text_sub))
@@ -1369,8 +1234,9 @@ def create_orbital_studio() -> widgets.VBox:
             fmo_explanation_box.value = render_fmo_explanation_html(cur_orb, selected_mol="Atom")
         elif m_key == "C2H4":
             orb_row.layout.display = "flex"
-            lcao_row.layout.display = "flex"
+            lcao_row.layout.display = "none"
             atom_orb_row.layout.display = "none"
+            state["lcao_mode"] = "MO"
             cur_cube = get_c2h4_cube_key()
             viewer_3d_box.value = render_molecule_3d_iframe("C2H4", cur_cube, width=580, height=540)
             mo_diagram_box.value = render_mo_diagram_svg("C2H4", state["orb"], state["lcao_mode"])
