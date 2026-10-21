@@ -840,110 +840,9 @@ def render_fmo_explanation_html(
     lcao_mode: str = "MO"
 ) -> str:
     """
-    Palauttaa pedagogisen ja selkeän selvityksen HOMO- ja LUMO-lyhenteistä,
-    atomiorbitaalien kvanttiluvuista ja solmuista tai LCAO-periaatteesta.
+    Palauttaa pedagogisen ja selkeän selvityksen HOMO- ja LUMO-rajaorbitaaleista.
+    Teksti on sama kaikilla molekyyleillä ja atomilla.
     """
-    if selected_mol == "Atom":
-        is_s = selected_orb in ["1s", "2s"]
-        is_p = selected_orb in ["2px", "2py", "2pz"]
-        is_sp3 = (selected_orb == "sp3")
-        is_d = selected_orb in ["3dz2", "3dxz", "3dyz", "3dxy", "3dx2y2"]
-
-        s_border = "#0284c7" if is_s else "#e2e8f0"
-        s_bg = "#f0f9ff" if is_s else "#ffffff"
-        s_badge = f" <span style='background:#0284c7; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>{selected_orb.upper()} VALITTUNA</span>" if is_s else ""
-
-        p_border = "#d97706" if is_p else ("#8b5cf6" if is_sp3 else "#e2e8f0")
-        p_bg = "#fffbeb" if is_p else ("#f5f3ff" if is_sp3 else "#ffffff")
-        p_badge = f" <span style='background:#d97706; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>{selected_orb.upper()} VALITTUNA</span>" if is_p else (
-            " <span style='background:#8b5cf6; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>SP³ VALITTUNA</span>" if is_sp3 else ""
-        )
-
-        d_border = "#059669" if is_d else "#e2e8f0"
-        d_bg = "#ecfdf5" if is_d else "#ffffff"
-        d_display_map = {
-            "3dz2": "3d_z²",
-            "3dxz": "3d_xz",
-            "3dyz": "3d_yz",
-            "3dxy": "3d_xy",
-            "3dx2y2": "3d_x²-y²",
-        }
-        d_badge_text = d_display_map.get(selected_orb, "3d")
-        d_badge = f" <span style='background:#059669; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>{d_badge_text.upper()} VALITTUNA</span>" if is_d else ""
-
-        return f"""
-    <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:16px 20px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:#1e293b; box-shadow:0 1px 3px rgba(0,0,0,0.04); margin-top:14px;">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
-        <h4 style="margin:0; font-size:15px; color:#0f172a; font-weight:700; display:flex; align-items:center; gap:6px;">
-          ⚛️ Atomiorbitaalit (AO), aaltofunktio ψ ja kvanttiluvut
-        </h4>
-        <span style="font-size:11.5px; color:#64748b; background:#f1f5f9; padding:2px 8px; border-radius:12px;">Schrödingerin yhtälön ratkaisut</span>
-      </div>
-
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-bottom:14px;">
-        <!-- s-orbitaalit ja aaltofunktio -->
-        <div style="background:{s_bg}; border:2px solid {s_border}; border-radius:8px; padding:12px 15px; transition:all 0.2s ease;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:13.5px; font-weight:700; color:#0284c7;">🔵 s-orbitaalit (l = 0) & Aaltofunktio ψ</span>
-            {s_badge}
-          </div>
-          <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
-            • <b>Pallosymmetrinen aalto:</b> s-orbitaaleilla sivukvanttiluku on <i>l = 0</i>. Elektronitiheys riippuu vain etäisyydestä ytimeen, ei suunnasta.
-          </p>
-          <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
-            • <b>Aallon vaihe (+ / -):</b> 3D-kuvassa sininen väri kuvaa aaltofunktion positiivista arvoa (ψ > 0) ja punainen negatiivista (ψ < 0). Elektronin löytymistodennäköisyys on |ψ|², joten molemmat vaiheet kuvaavat yhtä lailla elektronitiheyttä.
-          </p>
-          <div style="font-size:11.5px; background:rgba(2,132,199,0.08); padding:4px 8px; border-radius:4px; color:#0369a1;">
-            <b>Radiaalinen solmupinta:</b> 1s-orbitaalilla ei ole solmuja; 2s-orbitaalilla on 1 pallomainen solmupinta ytimen lähellä, jossa ψ vaihtaa merkkiä.
-          </div>
-        </div>
-
-        <!-- p-orbitaalit ja hybridisaatio -->
-        <div style="background:{p_bg}; border:2px solid {p_border}; border-radius:8px; padding:12px 15px; transition:all 0.2s ease;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:13.5px; font-weight:700; color:#d97706;">🟠 p-orbitaalit (l = 1) & sp³</span>
-            {p_badge}
-          </div>
-          <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
-            • <b>Suunnatut lohkot ja kulmasolmu:</b> p-orbitaaleilla (l = 1) on kaksi vastakkaismerkkistä lohkoa (+ ja -), joiden välissä ytimen läpi kulkee tasomainen solmupinta (ψ = 0).
-          </p>
-          <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
-            • <b>Avaruudelliset suuntaukset:</b> 2p_x, 2p_y ja 2p_z ovat keskenään kohtisuorassa (magneettinen kvanttiluku m_l = -1, 0, +1).
-          </p>
-          <div style="font-size:11.5px; background:rgba(139,92,246,0.1); padding:4px 8px; border-radius:4px; color:#6d28d9;">
-            <b>sp³-hybridisaatio:</b> Yhdistää yhden 2s- ja kolme 2p-orbitaalia neljäksi suunnatuksi hybridiorbitaaliksi (tetraedrikulma 109.5°), kuten hiilellä metaanissa (CH₄).
-          </div>
-        </div>
-
-        <!-- d-orbitaalit ja siirtymämetallit -->
-        <div style="background:{d_bg}; border:2px solid {d_border}; border-radius:8px; padding:12px 15px; transition:all 0.2s ease;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:13.5px; font-weight:700; color:#059669;">🟢 d-orbitaalit (l = 2) & Siirtymämetallit</span>
-            {d_badge}
-          </div>
-          <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
-            • <b>5 avaruudellista muotoa:</b> Neljä neliapilamaista orbitaalia (<i>3d_xy, 3d_yz, 3d_xz, 3d_x²-y²</i>) ja <i>3d_z²</i>, jolla on kaksi lohkoa z-akselilla sekä toroidimainen rengas (donitsi) xy-tasossa.
-          </p>
-          <p style="font-size:12px; line-height:1.45; color:#475569; margin:0 0 6px 0;">
-            • <b>Kaksi solmupintaa:</b> Kaikilla d-orbitaaleilla on 2 kulmasolmutasoa tai -kartiopintaa, joissa aaltofunktio vaihtaa merkkiä (ψ = 0).
-          </p>
-          <div style="font-size:11.5px; background:rgba(5,150,105,0.08); padding:4px 8px; border-radius:4px; color:#047857;">
-            <b>Ligandikenttäteoria:</b> d-orbitaalit ovat keskeisiä siirtymämetallien sidoksissa, katalyysissä ja kompleksiyhdisteiden oktaedrisessä (t₂_g / e_g) energiatasojen hajoamisessa.
-          </div>
-        </div>
-      </div>
-
-      <!-- LCAO periaate -->
-      <div style="background:#f8fafc; border-left:4px solid #0ea5e9; padding:9px 13px; border-radius:0 6px 6px 0; font-size:12px; line-height:1.5; color:#334155;">
-        <b>💡 Miten atomiorbitaaleista syntyy molekyyliorbitaaleja (LCAO)?</b><br>
-        Molekyyliorbitaaliteoria perustuu atomiorbitaalien lineaariseen yhdistämiseen (<i>Linear Combination of Atomic Orbitals, LCAO</i>): <b>ψ_MO = c₁ φ_AO,1 ± c₂ φ_AO,2</b>. 
-        Kun samanvaiheiset lohkot (+ ja +) kohtaavat, aallot vahvistavat toisiaan muodostaen <b>sitovan molekyyliorbitaalin</b>. Kun erivaiheiset lohkot (+ ja -) kohtaavat, aallot kumoavat toisensa muodostaen <b>hajottavan orbitaalin</b> solmupintoineen.<br>
-        <i>Valitse ylhäältä <b>C₂H₄</b>, niin voit kokeilla suoraan LCAO-näkymää ja nähdä miten kahdesta hiilen 2p_z-atomiorbitaalista syntyy eteenin π-sidos!</i>
-      </div>
-    </div>
-    """
-
-    # Molekyylit (CO, H2O, CO2, C2H4, H2CO, Benzene)
     is_homo = (selected_orb == "HOMO")
     is_homo_m1 = (selected_orb == "HOMO-1")
     is_lumo = (selected_orb == "LUMO")
@@ -957,43 +856,14 @@ def render_fmo_explanation_html(
     lumo_bg = "#fffbeb" if (is_lumo or is_lumo_p1) else "#ffffff"
     lumo_badge = " <span style='background:#d97706; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>VALITTUNA</span>" if is_lumo else (" <span style='background:#d97706; color:white; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px;'>LUMO+1 VALITTUNA</span>" if is_lumo_p1 else "")
 
-    mol_banner = ""
-    if selected_mol == "C2H4" and lcao_mode == "AO":
-        mol_banner = """
-      <div style="background:#eff6ff; border:1px solid #3b82f6; border-radius:6px; padding:10px 14px; margin-bottom:12px; font-size:12.5px; color:#1e40af;">
-        <b>🔬 LCAO-tila aktiivinen (Linear Combination of Atomic Orbitals):</b><br>
-        Tarkastelet nyt kahden hiiliatomin erillisiä <b>2p_z-atomiorbitaaleja</b> ennen sidoksen muodostumista. 
-        Klikkaa ylhäältä <b>"Muodostunut MO"</b> nähdäksesi, miten nämä atomiorbitaalit interferoivat keskenään muodostaen joko sitovan <b>π-kaksoissidoksen (HOMO)</b> tai hajottavan <b>π*-orbitaalin (LUMO)</b> ilman että 3D-kamera kääntyy!
-      </div>
-        """
-    elif selected_mol == "H2CO":
-        mol_banner = """
-      <div style="background:#f0fdf4; border:1px solid #22c55e; border-radius:6px; padding:10px 14px; margin-bottom:12px; font-size:12.5px; color:#15803d;">
-        <b>🎯 Formaldehydin (H₂C=O) rajaorbitaalit ja karbonyylin reaktiivisuus:</b><br>
-        • <b>HOMO (2b₂):</b> Hapen ei-sitova vapaa elektronipari (n_O). Toimii elektronitiheänä emäksisenä keskuksena (esim. protonoituu happamissa reaktioissa).<br>
-        • <b>LUMO (2b₁*):</b> C=O kaksoissidoksen hajottava π*-orbitaali. Elektronegatiivisuuseron vuoksi <b>LUMO:n aaltofunktio on polarisoitunut voimakkaasti hiilelle</b> (hiilen lohko on paljon happea suurempi!). Siksi nukleofiilit (kuten CN⁻, hydridit tai Grignard-reagenssit) hyökkäävät nimenomaan karbonyylihiileen! <i>(Katso havainnollistus 4. välilehdellä!)</i>
-      </div>
-        """
-    elif selected_mol == "Benzene":
-        mol_banner = """
-      <div style="background:#faf5ff; border:1px solid #a855f7; border-radius:6px; padding:10px 14px; margin-bottom:12px; font-size:12.5px; color:#6b21a8;">
-        <b>⬡ Bentseenin aromaattinen sekstetti ja Hückelin sääntö (4n + 2):</b><br>
-        • <b>Degeneroitunut HOMO-pari (π₂ ja π₃, -9.17 eV):</b> Bentseenillä on kaksi täsmälleen samanenergistä HOMO-orbitaalia. Valitse <b>HOMO</b> tai <b>HOMO-1</b> nähdäksesi niiden toisiaan vastaan kohtisuorassa olevat solmutasot (toisella solmutaso kulkee kahden vastakkaisen hiilen läpi, toisella C-C-sidosten välistä)!<br>
-        • <b>Degeneroitunut LUMO-pari (π₄* ja π₅*, +3.62 eV):</b> Kaksi tyhjää hajottavaa π*-orbitaalia, joissa on neljä erivaiheista lohkoa.<br>
-        • <b>Aromaattinen vakaus:</b> Koska kaikki kolme sitovaa π-orbitaalia ovat täysin miehitettyjä (suljettu kuori) ja HOMO-LUMO-energiaväli on erittäin suuri (~12.8 eV), bentseeni on poikkeuksellisen stabiili eikä reagoi herkästi additiolla, vaan suosii elektrofiilistä aromaattista substituutiota (EAS)!
-      </div>
-        """
-
     return f"""
     <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:8px; padding:16px 20px; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; color:#1e293b; box-shadow:0 1px 3px rgba(0,0,0,0.04); margin-top:14px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #e2e8f0; padding-bottom:8px;">
         <h4 style="margin:0; font-size:15px; color:#0f172a; font-weight:700; display:flex; align-items:center; gap:6px;">
-          📚 HOMO ja orbitaalit (Rajaorbitaalit / Frontier Molecular Orbitals)
+          📚 HOMO ja LUMO -rajaorbitaalit (Frontier Molecular Orbitals)
         </h4>
         <span style="font-size:11.5px; color:#64748b; background:#f1f5f9; padding:2px 8px; border-radius:12px;">Nobel-palkittu teoria (1981)</span>
       </div>
-
-      {mol_banner}
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;">
         <!-- HOMO Kortti -->
@@ -1040,7 +910,7 @@ def render_fmo_explanation_html(
       <!-- FMO teoria -->
       <div style="background:#f8fafc; border-left:4px solid #6366f1; padding:9px 13px; border-radius:0 6px 6px 0; font-size:12px; line-height:1.5; color:#334155;">
         <b>💡 Rajaorbitaaliteoria (Frontier Molecular Orbital, FMO):</b><br>
-        Molekyylin <b>HOMO</b> ja <b>LUMO</b> tunnetaan yhdessä <i>rajaorbitaaleina</i>. Japanilainen kemisti <b>Kenichi Fukui</b> osoitti, että useimmissa kemiallisissa reaktioissa uusi kovalenttinen sidos muodostuu, kun toisen molekyylin elektronirikas <b>HOMO</b> menee päällekkäin toisen molekyylin tyhjän <b>LUMO</b>:n kanssa (rakentava aaltointerferenssi). Tästä uraauurtavasta oivalluksesta Fukui ja Roald Hoffmann palkittiin <b>Nobelin kemianpalkinnolla vuonna 1981</b>. <i>(Katso havainnollinen esimerkki 5. välilehdeltä: syanidi-ionin HOMO luovuttaa elektroniparin formaldehydin LUMOlle!)</i>
+        Molekyylin <b>HOMO</b> ja <b>LUMO</b> tunnetaan yhdessä <i>rajaorbitaaleina</i>. Japanilainen kemisti <b>Kenichi Fukui</b> osoitti, että useimmissa kemiallisissa reaktioissa uusi kovalenttinen sidos muodostuu, kun toisen molekyylin elektronirikas <b>HOMO</b> menee päällekkäin toisen molekyylin tyhjän <b>LUMO</b>:n kanssa (rakentava aaltointerferenssi). Tästä uraauurtavasta oivalluksesta Fukui ja Roald Hoffmann palkittiin <b>Nobelin kemianpalkinnolla vuonna 1981</b>. <i>(Katso havainnollinen esimerkki 4. välilehdeltä: syanidi-ionin HOMO luovuttaa elektroniparin formaldehydin LUMOlle!)</i>
       </div>
     </div>
     """
@@ -1231,7 +1101,7 @@ def create_orbital_studio() -> widgets.VBox:
             cur_orb = state["atom_orb"]
             viewer_3d_box.value = render_molecule_3d_iframe("Atom", cur_orb, width=580, height=540)
             mo_diagram_box.value = render_mo_diagram_svg("Atom", cur_orb)
-            fmo_explanation_box.value = render_fmo_explanation_html(cur_orb, selected_mol="Atom")
+            fmo_explanation_box.value = render_fmo_explanation_html(state["orb"], selected_mol="Atom")
         elif m_key == "C2H4":
             orb_row.layout.display = "flex"
             lcao_row.layout.display = "none"
@@ -1304,7 +1174,7 @@ def create_orbital_studio() -> widgets.VBox:
                 btn.button_style = "warning" if k == a_key else ""
 
         mo_diagram_box.value = render_mo_diagram_svg("Atom", state["atom_orb"])
-        fmo_explanation_box.value = render_fmo_explanation_html(state["atom_orb"], selected_mol="Atom")
+        fmo_explanation_box.value = render_fmo_explanation_html(state["orb"], selected_mol="Atom")
 
         cmd_to_3d.value = json.dumps({
             "id": time.time(),
