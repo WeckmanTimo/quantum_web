@@ -43,27 +43,29 @@ main_tabs.add_class("main-nav-tabs")
 
 main_tabs.set_title(0, "🧪 RWGS-reaktio")
 main_tabs.set_title(1, "⚙️ Molekyylimekaniikka (MM)")
-main_tabs.set_title(2, "⚛️ Molekyyliorbitaalit (HOMO / LUMO 3D)")
+main_tabs.set_title(2, "⚛️ Molekyyliorbitaalit (MO)")
 main_tabs.set_title(3, "🎯 Nukleofiili-additio")
 
 nav_style = widgets.HTML("""
 <style>
-  /* Päävalikon välilehtien tyylitys: 10% pienempi fontti (21.6px) ja kaksinkertainen leveys */
+  /* Päävalikon välilehtien tyylitys: kaikki 4 välilehteä samalle riville */
   .main-nav-tabs > .lm-TabBar,
   .main-nav-tabs > .p-TabBar,
   .main-nav-tabs .widget-tab-bar,
   .main-nav-tabs > ul.nav-tabs {
-    flex-wrap: wrap !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
     height: auto !important;
-    min-height: 60px !important;
+    min-height: 54px !important;
     border-bottom: 3px solid #cbd5e1 !important;
     margin-bottom: 10px !important;
   }
 
   .main-nav-tabs > .lm-TabBar > .lm-TabBar-content,
   .main-nav-tabs > .p-TabBar > .p-TabBar-content {
-    flex-wrap: wrap !important;
-    gap: 8px !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
     width: 100% !important;
   }
 
@@ -73,14 +75,15 @@ nav_style = widgets.HTML("""
   .main-nav-tabs .widget-tab-bar .p-TabBar-tab,
   .main-nav-tabs > ul.nav-tabs > li,
   .main-nav-tabs > ul.nav-tabs > li > a {
-    min-height: 58px !important;
+    min-height: 52px !important;
     height: auto !important;
-    padding: 14px 56px !important; /* Kaksinkertainen vaakatäyte (28px -> 56px) */
-    min-width: 290px !important;   /* Välilehtien otsikot kaksinkertaisen leveiksi */
-    flex: 1 1 auto !important;     /* Jakaa leveyden tasaisesti ja reilusti */
-    font-size: 21.6px !important;  /* 10% pienempi fonttikoko (24px -> 21.6px) */
+    padding: 12px 14px !important;
+    min-width: 0 !important;
+    flex: 1 1 0px !important;
+    font-size: 17.5px !important;
+    font-size: clamp(14px, 1.25vw, 18px) !important;
     font-weight: 700 !important;
-    line-height: 1.3 !important;
+    line-height: 1.25 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -94,11 +97,14 @@ nav_style = widgets.HTML("""
   .main-nav-tabs .lm-TabBar-tabLabel,
   .main-nav-tabs .p-TabBar-tabLabel,
   .main-nav-tabs > ul.nav-tabs > li > a {
-    font-size: 21.6px !important;
+    font-size: 17.5px !important;
+    font-size: clamp(14px, 1.25vw, 18px) !important;
     font-weight: 700 !important;
-    line-height: 1.3 !important;
+    line-height: 1.25 !important;
     text-align: center !important;
     white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
 
   /* Aktiivisen välilehden erottuva teema */
