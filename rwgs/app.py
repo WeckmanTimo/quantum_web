@@ -48,7 +48,7 @@ main_tabs.set_title(3, "🎯 Nukleofiili-additio")
 
 nav_style = widgets.HTML("""
 <style>
-  /* Päävalikon välilehtien koon ja fontin tuplaus (+100% fonttikoko) */
+  /* Päävalikon välilehtien tyylitys: 10% pienempi fontti (21.6px) ja kaksinkertainen leveys */
   .main-nav-tabs > .lm-TabBar,
   .main-nav-tabs > .p-TabBar,
   .main-nav-tabs .widget-tab-bar,
@@ -57,7 +57,14 @@ nav_style = widgets.HTML("""
     height: auto !important;
     min-height: 60px !important;
     border-bottom: 3px solid #cbd5e1 !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .main-nav-tabs > .lm-TabBar > .lm-TabBar-content,
+  .main-nav-tabs > .p-TabBar > .p-TabBar-content {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    width: 100% !important;
   }
 
   .main-nav-tabs > .lm-TabBar .lm-TabBar-tab,
@@ -68,24 +75,30 @@ nav_style = widgets.HTML("""
   .main-nav-tabs > ul.nav-tabs > li > a {
     min-height: 58px !important;
     height: auto !important;
-    padding: 14px 28px !important;
-    font-size: 24px !important;
+    padding: 14px 56px !important; /* Kaksinkertainen vaakatäyte (28px -> 56px) */
+    min-width: 290px !important;   /* Välilehtien otsikot kaksinkertaisen leveiksi */
+    flex: 1 1 auto !important;     /* Jakaa leveyden tasaisesti ja reilusti */
+    font-size: 21.6px !important;  /* 10% pienempi fonttikoko (24px -> 21.6px) */
     font-weight: 700 !important;
     line-height: 1.3 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
+    text-align: center !important;
     border-radius: 8px 8px 0 0 !important;
     transition: all 0.15s ease-in-out !important;
     letter-spacing: -0.01em !important;
+    box-sizing: border-box !important;
   }
 
   .main-nav-tabs .lm-TabBar-tabLabel,
   .main-nav-tabs .p-TabBar-tabLabel,
   .main-nav-tabs > ul.nav-tabs > li > a {
-    font-size: 24px !important;
+    font-size: 21.6px !important;
     font-weight: 700 !important;
     line-height: 1.3 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
   }
 
   /* Aktiivisen välilehden erottuva teema */
